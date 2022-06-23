@@ -3,15 +3,19 @@
 
 using namespace std;
 
-vector<long long> solution(int x, int n)
+vector<vector<int>> solution(vector<vector<int>> arr1, vector<vector<int>> arr2)
 {
-    vector<long long> answer{};
+    int arrSize{ static_cast<int>(arr1.size()) };
+    vector<vector<int>> answer{ static_cast<size_t>(arrSize), vector<int>{} };
 
-    answer.reserve(n);
-
-    for (int i = 1; i <= n; ++i)
+    for (int i = 0; i < arrSize; ++i)
     {
-        answer.push_back(x * i);
+        int elementCount{ static_cast<int>(arr1[i].size()) };
+
+        for (int j = 0; j < elementCount; ++j)
+        {
+            answer[i].push_back(arr1[i][j] + arr2[i][j]);
+        }
     }
 
     return answer;
