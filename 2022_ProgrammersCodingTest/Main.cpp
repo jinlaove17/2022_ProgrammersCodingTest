@@ -1,20 +1,18 @@
-#include <iostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
-int main()
+vector<long long> solution(int x, int n)
 {
-	int n{}, m{};
+    vector<long long> answer{};
 
-	cin >> n >> m;
+    answer.reserve(n);
 
-	for (int i = 0; i < m; ++i)
-	{
-		for (int j = 0; j < n; ++j)
-		{
-			cout << "*";
-		}
+    for (int i = 1; i <= n; ++i)
+    {
+        answer.push_back(x * i);
+    }
 
-		cout << endl;
-	}
+    return answer;
 }
