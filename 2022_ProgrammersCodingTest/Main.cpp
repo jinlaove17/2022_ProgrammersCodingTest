@@ -1,22 +1,23 @@
 #include <string>
 #include <vector>
+#include <set>
 
 using namespace std;
 
-vector<vector<int>> solution(vector<vector<int>> arr1, vector<vector<int>> arr2)
+vector<int> solution(vector<int> numbers)
 {
-    int arrSize{ static_cast<int>(arr1.size()) };
-    vector<vector<int>> answer{ static_cast<size_t>(arrSize), vector<int>{} };
+    set<int> result{};
+    int numberCount{ static_cast<int>(numbers.size()) };
 
-    for (int i = 0; i < arrSize; ++i)
+    for (int i = 0; i < numberCount - 1; ++i)
     {
-        int elementCount{ static_cast<int>(arr1[i].size()) };
-
-        for (int j = 0; j < elementCount; ++j)
+        for (int j = i + 1; j < numberCount; ++j)
         {
-            answer[i].push_back(arr1[i][j] + arr2[i][j]);
+            result.insert(numbers[i] + numbers[j]);
         }
     }
+
+    vector<int> answer{ result.begin(), result.end() };
 
     return answer;
 }
