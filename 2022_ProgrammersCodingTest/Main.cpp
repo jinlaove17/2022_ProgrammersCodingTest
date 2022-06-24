@@ -1,23 +1,17 @@
 #include <string>
 #include <vector>
-#include <set>
 
 using namespace std;
 
-vector<int> solution(vector<int> numbers)
+string solution(string phone_number)
 {
-    set<int> result{};
-    int numberCount{ static_cast<int>(numbers.size()) };
+    string answer = phone_number;
+    size_t length = phone_number.length();
 
-    for (int i = 0; i < numberCount - 1; ++i)
+    for (int i = 0; i < length - 4; ++i)
     {
-        for (int j = i + 1; j < numberCount; ++j)
-        {
-            result.insert(numbers[i] + numbers[j]);
-        }
+        answer[i] = '*';
     }
-
-    vector<int> answer{ result.begin(), result.end() };
 
     return answer;
 }
