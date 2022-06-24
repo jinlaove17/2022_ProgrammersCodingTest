@@ -1,16 +1,22 @@
-#include <string>
-#include <vector>
-
-using namespace std;
-
-string solution(string phone_number)
+bool solution(int x)
 {
-    string answer = phone_number;
-    size_t length = phone_number.length();
+    bool answer = true;
 
-    for (int i = 0; i < length - 4; ++i)
+    if (x >= 10)
     {
-        answer[i] = '*';
+        int temp{ x };
+        int digitSum{};
+
+        while (temp > 0)
+        {
+            digitSum += temp % 10;
+            temp /= 10;
+        }
+
+        if (x % digitSum != 0)
+        {
+            answer = false;
+        }
     }
 
     return answer;
