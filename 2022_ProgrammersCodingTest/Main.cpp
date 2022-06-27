@@ -1,31 +1,40 @@
-int solution(int num)
+#include <vector>
+
+using namespace std;
+
+int CalculateGCD(int greater, int less)
 {
-    int answer{};
-    
-    if (num > 1)
+    int remainder{};
+
+    while (less != 0)
     {
-        // 문제 오류 : int num은 홀수 조건을 수행하다가 오버플로우가 발생함.
-        long num2 = num;
-
-        while (num2 != 1 && answer < 500)
-        {
-            if (num2 % 2 == 0)
-            {
-                num2 /= 2;
-            }
-            else
-            {
-                num2 = 3 * num2 + 1;
-            }
-
-            answer += 1;
-        }
-
-        if (answer >= 500)
-        {
-            answer = -1;
-        }
+        remainder = greater % less;
+        greater = less;
+        less = remainder;
     }
 
+    return greater;
+}
+
+int CalculateLCM(int greater, int less)
+{
+    return greater * less / CalculateGCD(greater, less);
+}
+
+vector<int> solution(int n, int m)
+{
+    vector<int> answer{};
+
+    if (n > m)
+    {
+        answer.push_back(CalculateGCD(n, m));
+        answer.push_back(CalculateLCM(n, m));
+    }
+    else
+    {
+        answer.push_back(CalculateGCD(m, n));
+        answer.push_back(CalculateLCM(m, n));
+    }
+   
     return answer;
 }
