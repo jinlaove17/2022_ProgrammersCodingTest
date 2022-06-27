@@ -1,23 +1,18 @@
-bool solution(int x)
+#include <string>
+#include <vector>
+
+using namespace std;
+
+double solution(vector<int> arr)
 {
-    bool answer = true;
+    double answer{};
 
-    if (x >= 10)
+    for (int n : arr)
     {
-        int temp{ x };
-        int digitSum{};
-
-        while (temp > 0)
-        {
-            digitSum += temp % 10;
-            temp /= 10;
-        }
-
-        if (x % digitSum != 0)
-        {
-            answer = false;
-        }
+        answer += n;
     }
+
+    answer /= arr.size();
 
     return answer;
 }
