@@ -1,33 +1,18 @@
-#include <vector>
-#include <climits>
+#include <cmath>
 
-using namespace std;
-
-vector<int> solution(vector<int> arr)
+long long solution(long long n)
 {
-    if (arr.size() == 1)
+    long long answer{};
+    double sqrtN = sqrt(n);
+
+    if (sqrtN == (int)sqrtN)
     {
-        arr[0] = -1;
+        answer = pow(sqrtN + 1, 2);
     }
     else
     {
-        int arrSize{ static_cast<int>(arr.size()) };
-        int minValue{ INT_MAX };
-        int minIndex{};
-
-        for (int i = 0; i < arrSize; ++i)
-        {
-            if (arr[i] < minValue)
-            {
-                minValue = arr[i];
-                minIndex = i;
-            }
-        }
-
-        arr.erase(next(arr.begin(), minIndex));
+        answer = -1;
     }
 
-    return arr;
+    return answer;
 }
-
-// 다음번에 풀 때는 min_element라는 함수를 공부하고 사용해보자.
