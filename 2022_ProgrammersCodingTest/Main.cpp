@@ -1,18 +1,15 @@
-#include <cmath>
+#include <string>
+#include <algorithm>
+
+using namespace std;
 
 long long solution(long long n)
 {
-    long long answer{};
-    double sqrtN = sqrt(n);
+    string strNum{ to_string(n) };
 
-    if (sqrtN == (int)sqrtN)
-    {
-        answer = pow(sqrtN + 1, 2);
-    }
-    else
-    {
-        answer = -1;
-    }
+    sort(strNum.begin(), strNum.end(), greater<char>());
+
+    long long answer{ stoll(strNum) };
 
     return answer;
 }
