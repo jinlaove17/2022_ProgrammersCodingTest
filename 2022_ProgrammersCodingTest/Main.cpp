@@ -1,15 +1,17 @@
-#include <string>
+#include <vector>
 #include <algorithm>
 
 using namespace std;
 
-long long solution(long long n)
+vector<int> solution(long long n)
 {
-    string strNum{ to_string(n) };
+    vector<int> answer{};
 
-    sort(strNum.begin(), strNum.end(), greater<char>());
-
-    long long answer{ stoll(strNum) };
+    while (n > 0)
+    {
+        answer.push_back(n % 10);
+        n /= 10;
+    }
 
     return answer;
 }
