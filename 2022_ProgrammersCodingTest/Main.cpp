@@ -1,15 +1,13 @@
-#include <iostream>
-
-using namespace std;
-
 int solution(int n)
 {
     int answer{};
 
-    while (n > 0)
+    for (int i = 1; i <= n; ++i)
     {
-        answer += n % 10;
-        n /= 10;
+        if (n % i == 0)
+        {
+            answer += i;
+        }
     }
 
     return answer;
