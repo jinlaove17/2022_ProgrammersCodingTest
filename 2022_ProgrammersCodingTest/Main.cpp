@@ -1,23 +1,13 @@
 #include <string>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int solution(string s)
+string solution(vector<string> seoul)
 {
-    int answer{};
-
-    if (s[0] == '-')
-    {
-        string onlyNum{ s.begin() + 1, s.end() };
-
-        answer = -stoi(onlyNum);
-    }
-    else
-    {
-        answer = stoi(s);
-    }
+    int index{ static_cast<int>(find(seoul.begin(), seoul.end(), "Kim") - seoul.begin()) };
+    string answer{ "김서방은 " + to_string(index) + "에 있다" };
 
     return answer;
 }
-
-// 정보 : stoi는 부호처리를 따로 해줄 필요가 없다...
