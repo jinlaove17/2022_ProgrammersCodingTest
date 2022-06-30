@@ -2,21 +2,22 @@
 
 using namespace std;
 
-string solution(int n)
+int solution(string s)
 {
-    string answer{};
+    int answer{};
 
-    for (int i = 0; i < n; ++i)
+    if (s[0] == '-')
     {
-        if (i % 2 == 0)
-        {
-            answer.append("수");
-        }
-        else
-        {
-            answer.append("박");
-        }
+        string onlyNum{ s.begin() + 1, s.end() };
+
+        answer = -stoi(onlyNum);
+    }
+    else
+    {
+        answer = stoi(s);
     }
 
     return answer;
 }
+
+// 정보 : stoi는 부호처리를 따로 해줄 필요가 없다...
