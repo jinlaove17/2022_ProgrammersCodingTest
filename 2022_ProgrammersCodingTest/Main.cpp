@@ -1,11 +1,30 @@
 #include <string>
-#include <algorithm>
 
 using namespace std;
 
-string solution(string s)
+bool solution(string s)
 {
-    sort(s.begin(), s.end(), greater<>());
+    bool answer{};
 
-    return s;
+    int countP{};
+    int countY{};
+
+    for (char c : s)
+    {
+        if (c == 'p' || c == 'P')
+        {
+            countP += 1;
+        }
+        else if (c == 'y' || c == 'Y')
+        {
+            countY += 1;
+        }
+    }
+
+    if (countP == countY)
+    {
+        answer = true;
+    }
+
+    return answer;
 }
