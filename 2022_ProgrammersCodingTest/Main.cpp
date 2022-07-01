@@ -1,25 +1,11 @@
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
-bool solution(string s)
+string solution(string s)
 {
-    bool answer{};
-    int length{ static_cast<int>(s.length()) };
+    sort(s.begin(), s.end(), greater<>());
 
-    if (length == 4 || length == 6)
-    {
-        answer = true;
-
-        for (char c : s)
-        {
-            if (!isdigit(c))
-            {
-                answer = false;
-                break;
-            }
-        }
-    }
-
-    return answer;
+    return s;
 }
