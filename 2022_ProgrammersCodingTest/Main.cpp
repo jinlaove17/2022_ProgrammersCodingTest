@@ -1,30 +1,19 @@
 #include <string>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-bool solution(string s)
+vector<string> solution(vector<string> strings, int n)
 {
-    bool answer{};
-
-    int countP{};
-    int countY{};
-
-    for (char c : s)
-    {
-        if (c == 'p' || c == 'P')
+    sort(strings.begin(), strings.end(), [n](const string& a, const string& b) {
+        if (a[n] == b[n])
         {
-            countP += 1;
+            return a < b;
         }
-        else if (c == 'y' || c == 'Y')
-        {
-            countY += 1;
-        }
-    }
 
-    if (countP == countY)
-    {
-        answer = true;
-    }
+        return a[n] < b[n];
+        });
 
-    return answer;
+    return strings;
 }
