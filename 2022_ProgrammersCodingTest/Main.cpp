@@ -1,19 +1,28 @@
-#include <string>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-vector<string> solution(vector<string> strings, int n)
+long long solution(int a, int b)
 {
-    sort(strings.begin(), strings.end(), [n](const string& a, const string& b) {
-        if (a[n] == b[n])
+    long long answer{};
+
+    if (a > b)
+    {
+        for (int i = b; i <= a; ++i)
         {
-            return a < b;
+            answer += i;
         }
+    }
+    else if (a == b)
+    {
+        answer = a;
+    }
+    else
+    {
+        for (int i = a; i <= b; ++i)
+        {
+            answer += i;
+        }
+    }
 
-        return a[n] < b[n];
-        });
 
-    return strings;
+
+
+    return answer;
 }
