@@ -1,24 +1,21 @@
 #include <vector>
-#include <algorithm>
-#include <iterator>
 
 using namespace std;
 
-vector<int> solution(vector<int> arr, int divisor)
+vector<int> solution(vector<int> arr)
 {
     vector<int> answer{};
+    int lastNum{ -1 };
 
-    copy_if(arr.begin(), arr.end(), back_inserter(answer), [divisor](int n) {
-        return n % divisor == 0;
-        });
+    answer.reserve(arr.size());
 
-    if (answer.size() == 0)
+    for (auto iter = arr.begin(); iter != arr.end(); ++iter)
     {
-        answer.push_back(-1);
-    }
-    else
-    {
-        sort(answer.begin(), answer.end());
+        if (lastNum != *iter)
+        {
+            lastNum = *iter;
+            answer.push_back(lastNum);
+        }
     }
 
     return answer;
