@@ -1,22 +1,32 @@
-#include <vector>
+#include <string>
 
 using namespace std;
 
-vector<int> solution(vector<int> arr)
+string solution(string s)
 {
-    vector<int> answer{};
-    int lastNum{ -1 };
+    int length{ static_cast<int>(s.length()) };
+    int centerPos{ length / 2 };
 
-    answer.reserve(arr.size());
-
-    for (auto iter = arr.begin(); iter != arr.end(); ++iter)
+    string answer{};
+    
+    if (length <= 2)
     {
-        if (lastNum != *iter)
+        answer = s;
+    }
+    else
+    {
+        if (length & 1)
         {
-            lastNum = *iter;
-            answer.push_back(lastNum);
+            answer = s[centerPos];
+        }
+        else
+        {
+            answer.push_back(s[centerPos - 1]);
+            answer.push_back(s[centerPos]);
         }
     }
 
     return answer;
 }
+
+// string::substr을 사용하면 쉽게 해결할 수 있다.
