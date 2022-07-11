@@ -1,32 +1,29 @@
-#include <string>
+#include <vector>
+#include <climits>
 
 using namespace std;
 
-string solution(string s)
+int solution(vector<vector<int>> sizes)
 {
-    int length{ static_cast<int>(s.length()) };
-    int centerPos{ length / 2 };
+    int cardCount{ static_cast<int>(sizes.size()) };
+    int maxWidth{ INT_MIN };
+    int maxHeight{ INT_MIN };
 
-    string answer{};
-    
-    if (length <= 2)
+    for (int i = 0; i < cardCount; ++i)
     {
-        answer = s;
-    }
-    else
-    {
-        if (length & 1)
+        int longerEdge{ max(sizes[i][0], sizes[i][1]) };
+        int shorterEdge{ min(sizes[i][0], sizes[i][1]) };
+
+        if (longerEdge > maxWidth)
         {
-            answer = s[centerPos];
+            maxWidth = longerEdge;
         }
-        else
+
+        if (shorterEdge > maxHeight)
         {
-            answer.push_back(s[centerPos - 1]);
-            answer.push_back(s[centerPos]);
+            maxHeight = shorterEdge;
         }
     }
 
-    return answer;
+    return maxWidth * maxHeight;
 }
-
-// string::substr을 사용하면 쉽게 해결할 수 있다.
