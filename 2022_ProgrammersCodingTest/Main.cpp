@@ -1,47 +1,32 @@
-#include <vector>
+#include <string>
 
 using namespace std;
 
-vector<int> solution(vector<int> answers)
+string solution(int a, int b)
 {
-    const int answerCount{ static_cast<int>(answers.size()) };
-    const int way1[]{ 1, 2, 3, 4, 5 };
-    const int way2[]{ 2, 1, 2, 3, 2, 4, 2, 5 };
-    const int way3[]{ 3, 3, 1, 1, 2, 2, 4, 4, 5, 5 };
+    int totalDays{ b };
+    int monthOfDays[]{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-    int scores[3]{};
-
-    for (int i = 0; i < answerCount; ++i)
+    for (int i = 0; i < a - 1; ++i)
     {
-        if (way1[i % 5] == answers[i])
-        {
-            scores[0] += 1;
-        }
-
-        if (way2[i % 8] == answers[i])
-        {
-            scores[1] += 1;
-        }
-
-        if (way3[i % 10] == answers[i])
-        {
-            scores[2] += 1;
-        }
+        totalDays += monthOfDays[i];
     }
 
-    const int maxScore{ max(scores[0], max(scores[1], scores[2])) };
-
-    vector<int> answer{};
-
-    answer.reserve(3);
-
-    for (int i = 0; i < 3; ++i)
+    switch (totalDays % 7)
     {
-        if (scores[i] == maxScore)
-        {
-            answer.push_back(i + 1);
-        }
+    case 0:
+        return "THU";
+    case 1:
+        return "FRI";
+    case 2:
+        return "SAT";
+    case 3:
+        return "SUN";
+    case 4:
+        return "MON";
+    case 5:
+        return "TUE";
+    case 6:
+        return "WED";
     }
-
-    return answer;
 }
