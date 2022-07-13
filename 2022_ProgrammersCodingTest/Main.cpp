@@ -1,16 +1,15 @@
-//#include <cmath>
+#include <vector>
 
-long long solution(int price, int money, int count)
+using namespace std;
+
+int solution(vector<int> a, vector<int> b)
 {
-    long long answer{};
-    long long totalPrice{};
+    int answer{};
 
-    for (int i = 1; i <= count; ++i)
+    for (int i = 0; i < a.size(); ++i)
     {
-        totalPrice += price * i;
+        answer += a[i] * b[i];
     }
 
-    answer = money - totalPrice;
-
-    return (answer > 0) ? 0 : -answer; // abs(answer); 이건 왜 안되는지..?
+    return answer;
 }
