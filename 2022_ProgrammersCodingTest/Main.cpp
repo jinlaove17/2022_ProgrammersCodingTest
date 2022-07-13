@@ -1,20 +1,24 @@
-int solution(int left, int right)
+#include <string>
+#include <cmath>
+
+using namespace std;
+
+int solution(int n)
 {
     int answer{};
+    string number{};
 
-    for (int i = left; i <= right; ++i)
+    while (n > 0)
     {
-        int divisorCount{};
+        number.push_back((n % 3) + '0');
+        n /= 3;
+    }
 
-        for (int j = 1; j <= right; ++j)
-        {
-            if (i % j == 0)
-            {
-                divisorCount += 1;
-            }
-        }
+    int length{ static_cast<int>(number.length()) };
 
-        (divisorCount & 1) ? answer -= i : answer += i;
+    for (int i = 0; i < length; ++i)
+    {
+        answer += pow(3, length - 1 - i) * (number[i] - '0');
     }
 
     return answer;
