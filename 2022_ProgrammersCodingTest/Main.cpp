@@ -1,31 +1,67 @@
 #include <string>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-string solution(string s)
+string solution(vector<string> participant, vector<string> completion)
 {
-    int length{ static_cast<int>(s.length()) };
-    int pos{};
+    string answer{};
 
-    for (int i = 0; i < length; ++i)
+    sort(participant.begin(), participant.end());
+    sort(completion.begin(), completion.end());
+
+    for (int i = 0; i < participant.size(); ++i)
     {
-        if (s[i] == ' ')
+        if (participant[i] != completion[i])
         {
-            pos = 0;
-            continue;
+            answer = participant[i];
+            break;
         }
-
-        if (pos & 1)
-        {
-            s[i] = tolower(s[i]);
-        }
-        else
-        {
-            s[i] = toupper(s[i]);
-        }
-
-        pos += 1;
     }
-    
-    return s;
+
+    return answer;
 }
+
+
+//#include <string>
+//#include <vector>
+//#include <set>
+//
+//using namespace std;
+//
+//string solution(vector<string> participant, vector<string> completion)
+//{
+//    string answer{};
+//
+//    const set<string> uniqueParticipantNames{ participant.cbegin(), participant.cend() };
+//    const set<string> uniqueCompletionNames{ completion.cbegin(), completion.cend() };
+//
+//    if (uniqueParticipantNames.size() != uniqueCompletionNames.size())
+//    {
+//        for (auto iter = uniqueParticipantNames.cbegin(); iter != uniqueParticipantNames.cend(); ++iter)
+//        {
+//            if (uniqueCompletionNames.find(*iter) == uniqueCompletionNames.cend())
+//            {
+//                answer = *iter;
+//                break;
+//            }
+//        }
+//    }
+//    else
+//    {
+//         const multiset<string> participantNames{ participant.cbegin(), participant.cend() };
+//         const multiset<string> completionNames{ completion.cbegin(), completion.cend() };
+//         
+//        for (auto iter = uniqueParticipantNames.cbegin(); iter != uniqueParticipantNames.cend(); ++iter)
+//        {
+//            if (participantNames.count(*iter) != completionNames.count(*iter))
+//            {
+//                answer = *iter;
+//                break;
+//            }
+//        }
+//    }
+//
+//    return answer;
+//}
