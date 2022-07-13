@@ -1,22 +1,31 @@
-int solution(int n)
+#include <string>
+
+using namespace std;
+
+string solution(string s)
 {
-    int answer{};
+    int length{ static_cast<int>(s.length()) };
+    int pos{};
 
-    if (n & 1)
+    for (int i = 0; i < length; ++i)
     {
-        answer = 2;
-    }
-    else
-    {
-        for (int i = 3; i < n; i += 2)
+        if (s[i] == ' ')
         {
-            if (n % i == 1)
-            {
-                answer = i;
-                break;
-            }
+            pos = 0;
+            continue;
         }
-    }
 
-    return answer;
+        if (pos & 1)
+        {
+            s[i] = tolower(s[i]);
+        }
+        else
+        {
+            s[i] = toupper(s[i]);
+        }
+
+        pos += 1;
+    }
+    
+    return s;
 }
