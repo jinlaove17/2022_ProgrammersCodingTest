@@ -1,14 +1,20 @@
 #include <vector>
+#include <set>
 
 using namespace std;
 
-int solution(vector<int> a, vector<int> b)
+int solution(vector<int> numbers)
 {
     int answer{};
 
-    for (int i = 0; i < a.size(); ++i)
+    set<int> uniqueNumbers{ numbers.begin(), numbers.end() };
+
+    for (int i = 0; i <= 9; ++i)
     {
-        answer += a[i] * b[i];
+        if (!uniqueNumbers.count(i))
+        {
+            answer += i;
+        }
     }
 
     return answer;
