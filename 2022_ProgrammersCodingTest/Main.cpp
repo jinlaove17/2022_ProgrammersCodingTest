@@ -1,20 +1,20 @@
-#include <vector>
-#include <set>
-
-using namespace std;
-
-int solution(vector<int> numbers)
+int solution(int left, int right)
 {
     int answer{};
 
-    set<int> uniqueNumbers{ numbers.begin(), numbers.end() };
-
-    for (int i = 0; i <= 9; ++i)
+    for (int i = left; i <= right; ++i)
     {
-        if (!uniqueNumbers.count(i))
+        int divisorCount{};
+
+        for (int j = 1; j <= right; ++j)
         {
-            answer += i;
+            if (i % j == 0)
+            {
+                divisorCount += 1;
+            }
         }
+
+        (divisorCount & 1) ? answer -= i : answer += i;
     }
 
     return answer;
