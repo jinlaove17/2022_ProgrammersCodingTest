@@ -1,24 +1,28 @@
-#include <string>
-#include <cmath>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int solution(int n)
+vector<int> solution(vector<int> arr, vector<vector<int>> commands)
 {
-    int answer{};
-    string number{};
+    vector<int> answer{};
 
-    while (n > 0)
+    answer.reserve(commands.size());
+
+    for (int i = 0; i < commands.size(); ++i)
     {
-        number.push_back((n % 3) + '0');
-        n /= 3;
-    }
+        vector<int> dividedArr{};
 
-    int length{ static_cast<int>(number.length()) };
+        dividedArr.reserve(commands[i][1] - commands[i][0] + 1);
 
-    for (int i = 0; i < length; ++i)
-    {
-        answer += pow(3, length - 1 - i) * (number[i] - '0');
+        for (int j = commands[i][0] - 1; j <= commands[i][1] - 1; ++j)
+        {
+            dividedArr.push_back(arr[j]);
+        }
+
+        sort(dividedArr.begin(), dividedArr.end());
+
+        answer.push_back(dividedArr[commands[i][2] - 1]);
     }
 
     return answer;
