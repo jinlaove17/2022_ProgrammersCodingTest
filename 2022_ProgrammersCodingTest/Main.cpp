@@ -1,15 +1,18 @@
 #include <vector>
+#include <set>
 
 using namespace std;
 
-int solution(vector<int> absolutes, vector<bool> signs)
+int solution(vector<int> nums)
 {
     int answer{};
 
-    for (int i = 0; i < absolutes.size(); ++i)
-    {
-        answer += (signs[i]) ? absolutes[i] : -absolutes[i];
-    }
+    set<int> types{ nums.begin(), nums.end() };
+
+    int typeCount{ static_cast<int>(types.size()) };
+    int selectCount{ static_cast<int>(nums.size() / 2) };
+
+    (typeCount >= selectCount) ? answer = selectCount : answer = typeCount;
 
     return answer;
 }
