@@ -1,27 +1,28 @@
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
-int solution(vector<int> d, int budget)
+void HanoiTop(vector<vector<int>>& answer, int n, int start, int end, int bypass);
+
+vector<vector<int>> solution(int n)
 {
-    int answer{};
-    int usedBudget{};
+    vector<vector<int>> answer{};
 
-    sort(d.begin(), d.end());
-
-    for (int i = 0; i < d.size(); ++i)
-    {
-        if (usedBudget + d[i] <= budget)
-        {
-            usedBudget += d[i];
-            answer += 1;
-        }
-        else
-        {
-            break;
-        }
-    }
+    HanoiTop(answer, n, 1, 3, 2);
 
     return answer;
+}
+
+void HanoiTop(vector<vector<int>>& answer, int n, int start, int end, int bypass)
+{
+    if (n == 1)
+    {
+        answer.push_back({ start, end });
+    }
+    else
+    {
+        HanoiTop(answer, n - 1, start, bypass, end);
+        answer.push_back({ start, end });
+        HanoiTop(answer, n - 1, bypass, end, start);
+    }
 }
