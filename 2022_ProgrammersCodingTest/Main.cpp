@@ -1,28 +1,53 @@
-#include <vector>
+#include <cmath>
 
-using namespace std;
+void NQueen(const int n, const int i, int* column, int& cases);
+bool CheckAttack(const int i, int* column);
 
-void HanoiTop(vector<vector<int>>& answer, int n, int start, int end, int bypass);
-
-vector<vector<int>> solution(int n)
+int solution(int n)
 {
-    vector<vector<int>> answer{};
+    int answer{};
+    int* column{ new int[n] {} };
 
-    HanoiTop(answer, n, 1, 3, 2);
+    NQueen(n, 0, column, answer);
+
+    delete[] column;
 
     return answer;
 }
 
-void HanoiTop(vector<vector<int>>& answer, int n, int start, int end, int bypass)
+void NQueen(const int n, const int i, int* column, int& cases)
 {
-    if (n == 1)
+    if (i == n)
     {
-        answer.push_back({ start, end });
+        cases += 1;
     }
     else
     {
-        HanoiTop(answer, n - 1, start, bypass, end);
-        answer.push_back({ start, end });
-        HanoiTop(answer, n - 1, bypass, end, start);
+        for (int j = 0; j < n; ++j)
+        {
+            column[i] = j;
+
+            if (!CheckAttack(i, column))
+            {
+                NQueen(n, i + 1, column, cases);
+            }
+        }
     }
+}
+
+bool CheckAttack(const int i, int* column)
+{
+    for (int j = 0; j < i; ++j)
+    {
+        if (column[i] == column[j]) // 가로 공격 체크
+        {
+            return true;
+        }
+        else if (i - j == abs(column[i] - column[j])) // 대각선 공격 체크
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
