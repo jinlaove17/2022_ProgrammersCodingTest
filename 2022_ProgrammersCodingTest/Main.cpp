@@ -1,53 +1,53 @@
-#include <cmath>
+#include <vector>
+#include <queue>
+#include <map>
+#include <algorithm>
 
-void NQueen(const int n, const int i, int* column, int& cases);
-bool CheckAttack(const int i, int* column);
+using namespace std;
 
-int solution(int n)
+int solution(vector<int> priorities, int location)
 {
-    int answer{};
-    int* column{ new int[n] {} };
+    int answer = 0;
 
-    NQueen(n, 0, column, answer);
+    queue<int> indexQueue;
+    map<int, int> priorityCounter;
 
-    delete[] column;
-
-    return answer;
-}
-
-void NQueen(const int n, const int i, int* column, int& cases)
-{
-    if (i == n)
+    for (int i = 0; i < priorities.size(); ++i)
     {
-        cases += 1;
+        indexQueue.push(i);
+        priorityCounter[priorities[i]] += 1;
     }
-    else
-    {
-        for (int j = 0; j < n; ++j)
-        {
-            column[i] = j;
 
-            if (!CheckAttack(i, column))
+    int maxPriority = priorityCounter.rbegin()->first;
+
+    while (!indexQueue.empty())
+    {
+        int currentIndex = indexQueue.front();
+
+        indexQueue.pop();
+
+        if (priorities[currentIndex] == maxPriority)
+        {
+            answer += 1;
+
+            if (currentIndex == location)
             {
-                NQueen(n, i + 1, column, cases);
+                break;
+            }
+
+            priorityCounter[priorities[currentIndex]] -= 1;
+
+            if (priorityCounter[priorities[currentIndex]] == 0)
+            {
+                priorityCounter.erase(priorities[currentIndex]);
+                maxPriority = priorityCounter.rbegin()->first;
             }
         }
-    }
-}
-
-bool CheckAttack(const int i, int* column)
-{
-    for (int j = 0; j < i; ++j)
-    {
-        if (column[i] == column[j]) // 가로 공격 체크
+        else
         {
-            return true;
-        }
-        else if (i - j == abs(column[i] - column[j])) // 대각선 공격 체크
-        {
-            return true;
+            indexQueue.push(currentIndex);
         }
     }
 
-    return false;
+    return answer;
 }
