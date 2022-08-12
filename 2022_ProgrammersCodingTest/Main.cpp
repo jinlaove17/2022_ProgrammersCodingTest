@@ -1,51 +1,31 @@
+#include <string>
 #include <vector>
-#include <queue>
-#include <map>
 #include <algorithm>
 
 using namespace std;
 
-int solution(vector<int> priorities, int location)
+bool solution(vector<string> phone_book)
 {
-    int answer = 0;
+    bool answer = true;
 
-    queue<int> indexQueue;
-    map<int, int> priorityCounter;
+    sort(phone_book.begin(), phone_book.end());
 
-    for (int i = 0; i < priorities.size(); ++i)
+    for (const string& phoneNumber : phone_book)
     {
-        indexQueue.push(i);
-        priorityCounter[priorities[i]] += 1;
-    }
+        auto endRange = lower_bound(phone_book.begin(), phone_book.end(), phoneNumber);
+        auto startRange = lower_bound(phone_book.begin(), endRange, string{ phoneNumber[0] });
+        auto stringRange = ++phoneNumber.begin();
 
-    int maxPriority = priorityCounter.rbegin()->first;
-
-    while (!indexQueue.empty())
-    {
-        int currentIndex = indexQueue.front();
-
-        indexQueue.pop();
-
-        if (priorities[currentIndex] == maxPriority)
+        while (stringRange != phoneNumber.end())
         {
-            answer += 1;
-
-            if (currentIndex == location)
+            if (binary_search(startRange, endRange, string{ phoneNumber.begin(), stringRange }))
             {
-                break;
+                answer = false;
+
+                return answer;
             }
 
-            priorityCounter[priorities[currentIndex]] -= 1;
-
-            if (priorityCounter[priorities[currentIndex]] == 0)
-            {
-                priorityCounter.erase(priorities[currentIndex]);
-                maxPriority = priorityCounter.rbegin()->first;
-            }
-        }
-        else
-        {
-            indexQueue.push(currentIndex);
+            ++stringRange;
         }
     }
 
