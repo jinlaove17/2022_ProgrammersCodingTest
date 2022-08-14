@@ -1,31 +1,54 @@
-#include <string>
 #include <vector>
-#include <algorithm>
+#include <queue>
 
 using namespace std;
 
-bool solution(vector<string> phone_book)
+vector<int> solution(vector<int> progresses, vector<int> speeds)
 {
-    bool answer = true;
+    vector<int> answer;
+    queue<int> q;
 
-    sort(phone_book.begin(), phone_book.end());
-
-    for (const string& phoneNumber : phone_book)
+    for (int i = 0; i < progresses.size(); ++i)
     {
-        auto endRange = lower_bound(phone_book.begin(), phone_book.end(), phoneNumber);
-        auto startRange = lower_bound(phone_book.begin(), endRange, string{ phoneNumber[0] });
-        auto stringRange = ++phoneNumber.begin();
+        q.push(progresses[i]);
+    }
 
-        while (stringRange != phoneNumber.end())
+    int n = 0;
+
+    while (true)
+    {
+        int restDay = ceilf((float)(100 - q.front()) / speeds[n]);
+        int outCount = 0;
+
+        for (int i = n; i < progresses.size(); ++i)
         {
-            if (binary_search(startRange, endRange, string{ phoneNumber.begin(), stringRange }))
+            int newProgress = q.front() + restDay * speeds[i];
+
+            if (newProgress >= 100)
             {
-                answer = false;
-
-                return answer;
+                q.pop();
+                outCount += 1;
             }
+            else
+            {
+                n = i;
+                break;
+            }
+        }
 
-            ++stringRange;
+        answer.push_back(outCount);
+
+        if (q.empty())
+        {
+            break;
+        }
+
+        for (int i = n; i < progresses.size(); ++i)
+        {
+            int newProgress = q.front() + restDay * speeds[i];
+
+            q.pop();
+            q.push(newProgress);
         }
     }
 
