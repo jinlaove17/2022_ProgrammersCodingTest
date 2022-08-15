@@ -1,56 +1,30 @@
 #include <vector>
-#include <queue>
 
 using namespace std;
 
-vector<int> solution(vector<int> progresses, vector<int> speeds)
+void GetTargetNumber(vector<int>& numbers, int index, const int target, int current, int& answer);
+
+int solution(vector<int> numbers, int target)
 {
-    vector<int> answer;
-    queue<int> q;
+    int answer = 0;
 
-    for (int i = 0; i < progresses.size(); ++i)
-    {
-        q.push(progresses[i]);
-    }
-
-    int n = 0;
-
-    while (true)
-    {
-        int restDay = ceilf((float)(100 - q.front()) / speeds[n]);
-        int outCount = 0;
-
-        for (int i = n; i < progresses.size(); ++i)
-        {
-            int newProgress = q.front() + restDay * speeds[i];
-
-            if (newProgress >= 100)
-            {
-                q.pop();
-                outCount += 1;
-            }
-            else
-            {
-                n = i;
-                break;
-            }
-        }
-
-        answer.push_back(outCount);
-
-        if (q.empty())
-        {
-            break;
-        }
-
-        for (int i = n; i < progresses.size(); ++i)
-        {
-            int newProgress = q.front() + restDay * speeds[i];
-
-            q.pop();
-            q.push(newProgress);
-        }
-    }
+    GetTargetNumber(numbers, 0, target, 0, answer);
 
     return answer;
+}
+
+void GetTargetNumber(vector<int>& numbers, int index, const int target, int current, int& answer)
+{
+    if (index == numbers.size())
+    {
+        if (current == target)
+        {
+            answer += 1;
+        }
+    }
+    else
+    {
+        GetTargetNumber(numbers, index + 1, target, current + numbers[index], answer);
+        GetTargetNumber(numbers, index + 1, target, current - numbers[index], answer);
+    }
 }
