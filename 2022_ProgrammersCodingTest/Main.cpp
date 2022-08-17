@@ -1,75 +1,27 @@
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 using namespace std;
 
-int GetDistance(int current, int target);
-
-string solution(vector<int> numbers, string hand)
+int solution(vector<vector<string>> clothes)
 {
-    string answer = "";
-    int leftNumber = 10, rightNumber = 12;
+    int answer = 1;
+    unordered_map<string, int> um;
 
-    for (int i = 0; i < numbers.size(); ++i)
+    for (const auto& cloth : clothes)
     {
-        switch (numbers[i])
-        {
-        case 1:
-        case 4:
-        case 7:
-            leftNumber = numbers[i];
-            answer += "L";
-            break;
-        case 3:
-        case 6:
-        case 9:
-            rightNumber = numbers[i];
-            answer += "R";
-            break;
-        case 0:
-            numbers[i] = 11;
-        case 2:
-        case 5:
-        case 8:
-        {
-            int leftDistance = GetDistance(leftNumber, numbers[i]);
-            int rightDistance = GetDistance(rightNumber, numbers[i]);
-
-            if (leftDistance < rightDistance)
-            {
-                leftNumber = numbers[i];
-                answer += "L";
-            }
-            else if (leftDistance == rightDistance)
-            {
-                if (hand == "left")
-                {
-                    leftNumber = numbers[i];
-                    answer += "L";
-                }
-                else if (hand == "right")
-                {
-                    rightNumber = numbers[i];
-                    answer += "R";
-                }
-            }
-            else
-            {
-                rightNumber = numbers[i];
-                answer += "R";
-            }
-        }
-            break;
-        }
+        um[cloth[1]] += 1;
     }
 
+    for (const auto& cloth : um)
+    {
+        // + 1 : 입지 않는 경우의 수
+        answer *= (cloth.second + 1);
+    }
+
+    // - 1 : 모든 종류의 옷을 입지 않는 경우의 수
+    answer -= 1;
+
     return answer;
-}
-
-int GetDistance(int current, int target)
-{
-    int width = abs((target - 1) % 3 - (current - 1) % 3);
-    int height = abs((target - 1) / 3 - (current - 1) / 3);
-
-    return width + height;
 }
