@@ -1,30 +1,75 @@
+#include <string>
 #include <vector>
 
 using namespace std;
 
-void GetTargetNumber(vector<int>& numbers, int index, const int target, int current, int& answer);
+int GetDistance(int current, int target);
 
-int solution(vector<int> numbers, int target)
+string solution(vector<int> numbers, string hand)
 {
-    int answer = 0;
+    string answer = "";
+    int leftNumber = 10, rightNumber = 12;
 
-    GetTargetNumber(numbers, 0, target, 0, answer);
+    for (int i = 0; i < numbers.size(); ++i)
+    {
+        switch (numbers[i])
+        {
+        case 1:
+        case 4:
+        case 7:
+            leftNumber = numbers[i];
+            answer += "L";
+            break;
+        case 3:
+        case 6:
+        case 9:
+            rightNumber = numbers[i];
+            answer += "R";
+            break;
+        case 0:
+            numbers[i] = 11;
+        case 2:
+        case 5:
+        case 8:
+        {
+            int leftDistance = GetDistance(leftNumber, numbers[i]);
+            int rightDistance = GetDistance(rightNumber, numbers[i]);
+
+            if (leftDistance < rightDistance)
+            {
+                leftNumber = numbers[i];
+                answer += "L";
+            }
+            else if (leftDistance == rightDistance)
+            {
+                if (hand == "left")
+                {
+                    leftNumber = numbers[i];
+                    answer += "L";
+                }
+                else if (hand == "right")
+                {
+                    rightNumber = numbers[i];
+                    answer += "R";
+                }
+            }
+            else
+            {
+                rightNumber = numbers[i];
+                answer += "R";
+            }
+        }
+            break;
+        }
+    }
 
     return answer;
 }
 
-void GetTargetNumber(vector<int>& numbers, int index, const int target, int current, int& answer)
+int GetDistance(int current, int target)
 {
-    if (index == numbers.size())
-    {
-        if (current == target)
-        {
-            answer += 1;
-        }
-    }
-    else
-    {
-        GetTargetNumber(numbers, index + 1, target, current + numbers[index], answer);
-        GetTargetNumber(numbers, index + 1, target, current - numbers[index], answer);
-    }
+    int width = abs((target - 1) % 3 - (current - 1) % 3);
+    int height = abs((target - 1) / 3 - (current - 1) / 3);
+
+    return width + height;
 }
