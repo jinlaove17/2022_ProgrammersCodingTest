@@ -1,27 +1,28 @@
 #include <string>
-#include <vector>
-#include <unordered_map>
 
 using namespace std;
 
-int solution(vector<vector<string>> clothes)
+string solution(string number, int k)
 {
-    int answer = 1;
-    unordered_map<string, int> um;
+    string answer = "";
 
-    for (const auto& cloth : clothes)
+    for (int i = 0; i < number.length(); ++i)
     {
-        um[cloth[1]] += 1;
+        while (!answer.empty() && k > 0 && number[i] > answer.back())
+        {
+            answer.pop_back();
+            --k;
+
+            if (k == 0)
+            {
+                answer += number.substr(i, number.length() - 1);
+
+                return answer;
+            }
+        }
+
+        answer.push_back(number[i]);
     }
 
-    for (const auto& cloth : um)
-    {
-        // + 1 : 입지 않는 경우의 수
-        answer *= (cloth.second + 1);
-    }
-
-    // - 1 : 모든 종류의 옷을 입지 않는 경우의 수
-    answer -= 1;
-
-    return answer;
+    return answer.substr(0, answer.length() - k);
 }
