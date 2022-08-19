@@ -1,28 +1,26 @@
-#include <string>
+#include <vector>
 
 using namespace std;
 
-string solution(string number, int k)
+int solution(int n, vector<int> stations, int w)
 {
-    string answer = "";
+    int answer = 0;
 
-    for (int i = 0; i < number.length(); ++i)
+    int count = 0;
+    int start = 1;
+
+    for (int i = 0; i < stations.size(); ++i)
     {
-        while (!answer.empty() && k > 0 && number[i] > answer.back())
-        {
-            answer.pop_back();
-            --k;
-
-            if (k == 0)
-            {
-                answer += number.substr(i, number.length() - 1);
-
-                return answer;
-            }
-        }
-
-        answer.push_back(number[i]);
+        count = stations[i] - w - start;
+        answer += ceilf((float)count / (2 * w + 1));
+        start = stations[i] + w + 1;
     }
 
-    return answer.substr(0, answer.length() - k);
+    if (start <= n)
+    {
+        count = n + 1 - start;
+        answer += ceilf((float)count / (2 * w + 1));
+    }
+
+    return answer;
 }
