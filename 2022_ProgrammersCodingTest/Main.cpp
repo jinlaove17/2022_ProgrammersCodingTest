@@ -1,25 +1,32 @@
+#include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int solution(int n, vector<int> stations, int w)
+string solution(vector<int> numbers)
 {
-    int answer = 0;
+    string answer = "";
 
-    int count = 0;
-    int start = 1;
+    sort(numbers.begin(), numbers.end(),
+        [](int a, int b)
+        {
+            string s1 = to_string(a) + to_string(b);
+            string s2 = to_string(b) + to_string(a);
 
-    for (int i = 0; i < stations.size(); ++i)
+            return s1 > s2;
+        });
+
+    if (numbers[0] == 0)
     {
-        count = stations[i] - w - start;
-        answer += ceilf((float)count / (2 * w + 1));
-        start = stations[i] + w + 1;
+        answer = "0";
+
+        return answer;
     }
 
-    if (start <= n)
+    for (int number : numbers)
     {
-        count = n + 1 - start;
-        answer += ceilf((float)count / (2 * w + 1));
+        answer += to_string(number);
     }
 
     return answer;
