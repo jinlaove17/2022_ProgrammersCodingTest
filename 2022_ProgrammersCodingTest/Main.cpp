@@ -1,34 +1,69 @@
+#include <string>
 #include <queue>
 
 using namespace std;
 
-int solution(vector<int> scoville, int K)
+vector<int> solution(vector<string> operations)
 {
-    int answer = 0;
-    priority_queue<int, vector<int>, greater<int>> pq(scoville.begin(), scoville.end());
+    vector<int> answer;
+    priority_queue<int> maxHeap;
 
-    while (true)
+    for (const auto& operation : operations)
     {
-        int first = pq.top();
+        int i = stoi(operation.substr(1, operation.length() - 1));
 
-        pq.pop();
-
-        if (first >= K)
+        switch (operation[0])
         {
+        case 'I':
+            maxHeap.push(i);
+            break;
+        case 'D':
+            if (!maxHeap.empty())
+            {
+                switch (i)
+                {
+                case 1:
+                    maxHeap.pop();
+                    break;
+                case -1:
+                {
+                    priority_queue<int, vector<int>, greater<int>> minHeap;
+
+                    while (!maxHeap.empty())
+                    {
+                        minHeap.push(maxHeap.top());
+                        maxHeap.pop();
+                    }
+
+                    minHeap.pop();
+
+                    while (!minHeap.empty())
+                    {
+                        maxHeap.push(minHeap.top());
+                        minHeap.pop();
+                    }
+                }
+                break;
+                }
+            }
             break;
         }
-        else if (pq.empty())
+    }
+
+    if (maxHeap.empty())
+    {
+        answer = { 0, 0 };
+    }
+    else
+    {
+        answer.push_back(maxHeap.top());
+
+        while (maxHeap.size() > 1)
         {
-            answer = -1;
-            break;
+            maxHeap.pop();
         }
 
-        int second = pq.top();
-
-        pq.pop();
-        pq.push(first + 2 * second);
-
-        ++answer;
+        answer.push_back(maxHeap.top());
     }
 
     return answer;
