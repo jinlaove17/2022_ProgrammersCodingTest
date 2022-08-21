@@ -1,25 +1,34 @@
-#include <vector>
-#include <algorithm>
+#include <queue>
 
 using namespace std;
 
-int solution(vector<int> citations)
+int solution(vector<int> scoville, int K)
 {
     int answer = 0;
+    priority_queue<int, vector<int>, greater<int>> pq(scoville.begin(), scoville.end());
 
-    sort(citations.begin(), citations.end());
-
-    for (int n = citations.size(); n >= 0; --n)
+    while (true)
     {
-        int pivot = lower_bound(citations.begin(), citations.end(), n) - citations.begin();
-        int quotedCount = (citations.size() - 1) - pivot + 1;
-        int restCount = pivot - 1;
+        int first = pq.top();
 
-        if (quotedCount >= n && restCount <= n)
+        pq.pop();
+
+        if (first >= K)
         {
-            answer = n;
             break;
         }
+        else if (pq.empty())
+        {
+            answer = -1;
+            break;
+        }
+
+        int second = pq.top();
+
+        pq.pop();
+        pq.push(first + 2 * second);
+
+        ++answer;
     }
 
     return answer;
