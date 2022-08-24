@@ -1,43 +1,45 @@
-#include <string>
 #include <vector>
-#include <unordered_map>
-#include <algorithm>
-#include <stack>
+#include <unordered_set>
+#include <queue>
 
 using namespace std;
 
-vector<string> solution(vector<vector<string>> tickets)
+int solution(int n, vector<vector<int>> computers)
 {
-    vector<string> answer;
-    unordered_map<string, list<string>> um;
+    int answer = 0;
+    unordered_set<int> visited;
 
-    sort(tickets.begin(), tickets.end(), greater<vector<string>>());
-
-    for (const auto& ticket : tickets)
+    for (int i = 0; i < n; ++i)
     {
-        um[ticket[0]].push_back(ticket[1]);
-    }
-
-    stack<string> s({ "ICN" });
-
-    while (!s.empty())
-    {
-        string current = s.top();
-
-        if (um.count(current) == 0 || um[current].empty())
+        if (visited.find(i) != visited.end())
         {
-            s.pop();
-            answer.push_back(current);
+            continue;
         }
-        else
-        {
-            s.push(um[current].back());
-            um[current].pop_back();
-        }
-    }
 
-    // 현재 answer에는 역순으로 여행경로가 저장되어 있기 때문에, 벡터를 뒤집는다.
-    reverse(answer.begin(), answer.end());
+        visited.insert(i);
+
+        queue<int> q;
+
+        q.push(i);
+
+        while (!q.empty())
+        {
+            int current = q.front();
+
+            q.pop();
+
+            for (int j = 0; j < n; ++j)
+            {
+                if (computers[current][j] == 1 && visited.find(j) == visited.end())
+                {
+                    q.push(j);
+                    visited.insert(j);
+                }
+            }
+        }
+
+        ++answer;
+    }
 
     return answer;
 }
