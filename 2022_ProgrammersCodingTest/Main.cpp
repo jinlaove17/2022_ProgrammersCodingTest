@@ -1,69 +1,52 @@
-#include <string>
-#include <queue>
+#include <unordered_set>
 
 using namespace std;
 
-vector<int> solution(vector<string> operations)
+int solution(int N, int number)
 {
-    vector<int> answer;
-    priority_queue<int> maxHeap;
+    int answer = -1;
+    unordered_set<int> us[8];
+    int base = 0;
 
-    for (const auto& operation : operations)
+    for (int i = 0; i < 8; ++i)
     {
-        int i = stoi(operation.substr(1, operation.length() - 1));
+        base = 10 * base + N;
 
-        switch (operation[0])
+        us[i].insert(base);
+    }
+
+    if (us[0].count(number) > 0)
+    {
+        answer = 1;
+
+        return answer;
+    }
+
+    for (int i = 1; i < 8; ++i)
+    {
+        for (int j = 0; j < i; ++j)
         {
-        case 'I':
-            maxHeap.push(i);
-            break;
-        case 'D':
-            if (!maxHeap.empty())
+            for (const auto& op1 : us[j])
             {
-                switch (i)
+                for (const auto& op2 : us[i - j - 1])
                 {
-                case 1:
-                    maxHeap.pop();
-                    break;
-                case -1:
-                {
-                    priority_queue<int, vector<int>, greater<int>> minHeap;
+                    us[i].insert(op1 + op2);
+                    us[i].insert(op1 - op2);
+                    us[i].insert(op1 * op2);
 
-                    while (!maxHeap.empty())
+                    if (op2 != 0)
                     {
-                        minHeap.push(maxHeap.top());
-                        maxHeap.pop();
+                        us[i].insert(op1 / op2);
                     }
-
-                    minHeap.pop();
-
-                    while (!minHeap.empty())
-                    {
-                        maxHeap.push(minHeap.top());
-                        minHeap.pop();
-                    }
-                }
-                break;
                 }
             }
+        }
+
+        if (us[i].count(number) > 0)
+        {
+            answer = i + 1;
             break;
         }
-    }
-
-    if (maxHeap.empty())
-    {
-        answer = { 0, 0 };
-    }
-    else
-    {
-        answer.push_back(maxHeap.top());
-
-        while (maxHeap.size() > 1)
-        {
-            maxHeap.pop();
-        }
-
-        answer.push_back(maxHeap.top());
     }
 
     return answer;
