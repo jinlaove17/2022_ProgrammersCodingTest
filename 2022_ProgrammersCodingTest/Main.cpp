@@ -1,44 +1,27 @@
 #include <vector>
-#include <unordered_set>
-#include <queue>
 
 using namespace std;
 
-int solution(int n, vector<vector<int>> computers)
+vector<vector<int>> solution(vector<vector<int>> arr1, vector<vector<int>> arr2)
 {
-    int answer = 0;
-    unordered_set<int> visited;
+    vector<vector<int>> answer;
 
-    for (int i = 0; i < n; ++i)
+    const int row = arr1.size();
+    const int column = arr2[0].size();
+
+    answer.resize(row);
+
+    for (int i = 0; i < row; ++i)
     {
-        if (visited.find(i) != visited.end())
+        answer[i].resize(column);
+
+        for (int j = 0; j < column; ++j)
         {
-            continue;
-        }
-
-        visited.insert(i);
-
-        queue<int> q;
-
-        q.push(i);
-
-        while (!q.empty())
-        {
-            int current = q.front();
-
-            q.pop();
-
-            for (int j = 0; j < n; ++j)
+            for (int k = 0; k < arr1[i].size(); ++k)
             {
-                if (computers[current][j] == 1 && visited.find(j) == visited.end())
-                {
-                    q.push(j);
-                    visited.insert(j);
-                }
+                answer[i][j] += (arr1[i][k] * arr2[k][j]);
             }
         }
-
-        ++answer;
     }
 
     return answer;
