@@ -1,26 +1,61 @@
 #include <vector>
+#include <queue>
 
 using namespace std;
 
-vector<vector<int>> solution(vector<vector<int>> arr1, vector<vector<int>> arr2)
+struct POSITION
 {
-    vector<vector<int>> answer;
+    int x;
+    int y;
+    int dist;
+};
 
-    const int row = arr1.size();
-    const int column = arr2[0].size();
+int solution(vector<vector<int>> maps)
+{
+    int answer = -1;
 
-    answer.resize(row);
+    const int n = maps.size();
+    const int m = maps[0].size();
 
-    for (int i = 0; i < row; ++i)
+    queue<POSITION> q;
+    POSITION current = { 0, 0, 1 };
+
+    maps[current.x][current.y] = 0;
+    q.push(current);
+
+    while (!q.empty())
     {
-        answer[i].resize(column);
+        current = q.front();
+        q.pop();
 
-        for (int j = 0; j < column; ++j)
+        if (current.x == n - 1 && current.y == m - 1)
         {
-            for (int k = 0; k < arr1[i].size(); ++k)
-            {
-                answer[i][j] += (arr1[i][k] * arr2[k][j]);
-            }
+            answer = current.dist;
+            break;
+        }
+
+        if (current.x - 1 >= 0 && maps[current.x - 1][current.y] == 1)
+        {
+            maps[current.x - 1][current.y] = 0;
+            q.push(POSITION{ current.x - 1, current.y, current.dist + 1 });
+        }
+
+        if (current.x + 1 < n && maps[current.x + 1][current.y] == 1)
+        {
+            maps[current.x + 1][current.y] = 0;
+            q.push(POSITION{ current.x + 1, current.y, current.dist + 1 });
+        }
+
+        if (current.y - 1 >= 0 && maps[current.x][current.y - 1] == 1)
+        {
+            maps[current.x][current.y - 1] = 0;
+            q.push(POSITION{ current.x, current.y - 1, current.dist + 1 });
+        }
+
+        if (current.y + 1 < m && maps[current.x][current.y + 1] == 1)
+        {
+            maps[current.x][current.y + 1] = 0;
+            q.push(POSITION{ current.x, current.y + 1, current.dist + 1 });
         }
     }
 
