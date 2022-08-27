@@ -1,63 +1,106 @@
-#include <vector>
-#include <queue>
+#include <string>
 
 using namespace std;
 
-struct POSITION
+int solution(string name)
 {
-    int x;
-    int y;
-    int dist;
-};
+    int answer = 0;
+    int len = name.length();
 
-int solution(vector<vector<int>> maps)
-{
-    int answer = -1;
+    // 원점(0)에서 오른쪽으로만 이동하는 데 걸리는 수
+    int dist = len - 1;
 
-    const int n = maps.size();
-    const int m = maps[0].size();
-
-    queue<POSITION> q;
-    POSITION current = { 0, 0, 1 };
-
-    maps[current.x][current.y] = 0;
-    q.push(current);
-
-    while (!q.empty())
+    for (int i = 0; i < len; ++i)
     {
-        current = q.front();
-        q.pop();
+        answer += min(name[i] - 'A', 26 - (name[i] - 'A'));
 
-        if (current.x == n - 1 && current.y == m - 1)
+        // 오른쪽으로 이동하며, 'A'가 아닌 위치를 찾는다.
+        int j = i + 1;
+
+        while (j < len && name[j] == 'A')
         {
-            answer = current.dist;
+            ++j;
+        }
+
+        // 가장 적게 걸리는 이동 수를 계산한다.
+        // i + i + len - j : i만큼 오른쪽으로 이동 후, 다시 원점(0)으로 돌아오고, j까지 왼쪽으로 이동하는 데 걸리는 수
+        // len - j + len - j + i : j까지 왼쪽으로 이동 후, 다시 원점(0)으로 돌아오고, i까지 오른쪽으로 이동하는 데 걸리는 수
+        // 두 식을 정리하면 i + len - j + min(i, len - j)로 나타낼 수 있다.
+        dist = min(dist, i + len - j + min(i, len - j));
+    }
+
+    answer += dist;
+
+    return answer;
+}
+
+// 참고 : https://googleyness.tistory.com/16
+
+// 초반에 Greedy 알고리즘으로 풀었었는데, 이 알고리즘으로 해결할 수 없는 테스트 케이스가 존재하여 다른 방법으로 풀게되었다.
+/*
+int solution(string name)
+{
+    int answer = 0;
+    string initName;
+
+    for (int i = 0; i < name.length(); ++i)
+    {
+        initName.push_back('A');
+    }
+
+    int cursor = 0;
+
+    while (true)
+    {
+        int toNext = name[cursor] - initName[cursor];
+        int toPrev = 26 - toNext;
+
+        answer += min(toNext, toPrev);
+        initName[cursor] = name[cursor];
+
+        if (initName == name)
+        {
             break;
         }
 
-        if (current.x - 1 >= 0 && maps[current.x - 1][current.y] == 1)
+        // 왼쪽으로 이동하며 바꿔야 할 위치까지의 거리를 구한다.
+        int toLeft = 0;
+
+        for (int i = (cursor - 1 + name.length()) % name.length(); i != cursor; i = (i - 1 + name.length()) % name.length())
         {
-            maps[current.x - 1][current.y] = 0;
-            q.push(POSITION{ current.x - 1, current.y, current.dist + 1 });
+            ++toLeft;
+
+            if (initName[i] != name[i])
+            {
+                break;
+            }
         }
 
-        if (current.x + 1 < n && maps[current.x + 1][current.y] == 1)
+        // 오른쪽으로 이동하며 바꿔야 할 위치까지의 거리를 구한다.
+        int toRight = 0;
+
+        for (int i = (cursor + 1) % name.length(); i != cursor; i = (i + 1) % name.length())
         {
-            maps[current.x + 1][current.y] = 0;
-            q.push(POSITION{ current.x + 1, current.y, current.dist + 1 });
+            ++toRight;
+
+            if (initName[i] != name[i])
+            {
+                break;
+            }
         }
 
-        if (current.y - 1 >= 0 && maps[current.x][current.y - 1] == 1)
+        if (toLeft < toRight)
         {
-            maps[current.x][current.y - 1] = 0;
-            q.push(POSITION{ current.x, current.y - 1, current.dist + 1 });
+            cursor = (cursor - toLeft + name.length()) % name.length();
+            answer += toLeft;
         }
-
-        if (current.y + 1 < m && maps[current.x][current.y + 1] == 1)
+        else
         {
-            maps[current.x][current.y + 1] = 0;
-            q.push(POSITION{ current.x, current.y + 1, current.dist + 1 });
+            cursor = (cursor + toRight) % name.length();
+            answer += toRight;
         }
     }
 
     return answer;
 }
+*/
