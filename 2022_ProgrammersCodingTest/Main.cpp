@@ -1,36 +1,28 @@
-#include <string>
-#include <stack>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-bool solution(string s)
+int solution(vector<int> people, int limit)
 {
-    bool answer = true;
-    stack<char> st;
+    int answer = 0;
 
-    for (char c : s)
+    sort(people.begin(), people.end());
+
+    int i = 0, j = people.size() - 1;
+
+    while (i <= j)
     {
-        switch (c)
+        if (people[i] + people[j] <= limit)
         {
-        case '(':
-            st.push(c);
-            break;
-        case ')':
-            if (st.empty())
-            {
-                return false;
-            }
-            else
-            {
-                st.pop();
-            }
-            break;
+            ++i; --j;
         }
-    }
+        else
+        {
+            --j;
+        }
 
-    if (!st.empty())
-    {
-        answer = false;
+        ++answer;
     }
 
     return answer;
