@@ -1,29 +1,37 @@
 #include <string>
-#include <bitset>
+#include <stack>
 
 using namespace std;
 
-int solution(int n)
+bool solution(string s)
 {
-    int answer = 0;
+    bool answer = true;
+    stack<char> st;
 
-    bitset<32> bs(n);
-    string s = bs.to_string();
-    int cnt = count(s.begin(), s.end(), '1');
-
-    for (int i = 1; ; ++i)
+    for (char c : s)
     {
-        bs = n + i;
-        s = bs.to_string();
-
-        if (count(s.begin(), s.end(), '1') == cnt)
+        switch (c)
         {
-            answer = n + i;
+        case '(':
+            st.push(c);
+            break;
+        case ')':
+            if (st.empty())
+            {
+                return false;
+            }
+            else
+            {
+                st.pop();
+            }
             break;
         }
     }
 
+    if (!st.empty())
+    {
+        answer = false;
+    }
+
     return answer;
 }
-
-// [참고] bitset의 count() 메소드는 해당 값의 비트 1의 개수를 반환해준다.
