@@ -1,33 +1,32 @@
-#include <string>
+#include <vector>
 
 using namespace std;
 
-string solution(int n)
+int solution(vector<vector<int>> board)
 {
-    string answer = "";
+    int answer = 0;
+    int maxLength = 0;
 
-    int share = n;
-    int reminder = 0;
-
-    while (share > 0)
+    for (int i = 0; i < board.size(); ++i)
     {
-        reminder = share % 3;
-        share /= 3;
-
-        switch (reminder)
+        for (int j = 0; j < board[i].size(); ++j)
         {
-        case 0:
-            answer = "4" + answer;
-            --share;
-            break;
-        case 1:
-            answer = "1" + answer;
-            break;
-        case 2:
-            answer = "2" + answer;
-            break;
+            if (i > 0 && j > 0 && board[i][j] > 0)
+            {
+                board[i][j] = min(board[i - 1][j - 1], min(board[i - 1][j], board[i][j - 1])) + 1;
+            }
+
+            if (board[i][j] > maxLength)
+            {
+                maxLength = board[i][j];
+            }
         }
     }
 
+    answer = pow(maxLength, 2);
+
     return answer;
 }
+
+// 참고 : https://ansohxxn.github.io/programmers/85/
+// DP를 이용한 풀이법
