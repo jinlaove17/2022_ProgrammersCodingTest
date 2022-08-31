@@ -1,28 +1,32 @@
-#include <vector>
-#include <algorithm>
+#include <string>
 
 using namespace std;
 
-int solution(vector<int> people, int limit)
+string solution(int n)
 {
-    int answer = 0;
+    string answer = "";
 
-    sort(people.begin(), people.end());
+    int share = n;
+    int reminder = 0;
 
-    int i = 0, j = people.size() - 1;
-
-    while (i <= j)
+    while (share > 0)
     {
-        if (people[i] + people[j] <= limit)
-        {
-            ++i; --j;
-        }
-        else
-        {
-            --j;
-        }
+        reminder = share % 3;
+        share /= 3;
 
-        ++answer;
+        switch (reminder)
+        {
+        case 0:
+            answer = "4" + answer;
+            --share;
+            break;
+        case 1:
+            answer = "1" + answer;
+            break;
+        case 2:
+            answer = "2" + answer;
+            break;
+        }
     }
 
     return answer;
