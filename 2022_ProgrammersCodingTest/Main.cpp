@@ -1,32 +1,32 @@
 #include <vector>
+#include <stack>
 
 using namespace std;
 
-int solution(vector<vector<int>> board)
+vector<int> solution(vector<int> prices)
 {
-    int answer = 0;
-    int maxLength = 0;
+    vector<int> answer(prices.size(), 0);
+    stack<int> s;
 
-    for (int i = 0; i < board.size(); ++i)
+    for (int i = 0; i < prices.size(); ++i)
     {
-        for (int j = 0; j < board[i].size(); ++j)
+        while (!s.empty() && prices[s.top()] > prices[i])
         {
-            if (i > 0 && j > 0 && board[i][j] > 0)
-            {
-                board[i][j] = min(board[i - 1][j - 1], min(board[i - 1][j], board[i][j - 1])) + 1;
-            }
-
-            if (board[i][j] > maxLength)
-            {
-                maxLength = board[i][j];
-            }
+            answer[s.top()] = i - s.top();
+            s.pop();
         }
+
+        s.push(i);
     }
 
-    answer = pow(maxLength, 2);
+    while (!s.empty())
+    {
+        answer[s.top()] = prices.size() - 1 - s.top();
+        s.pop();
+    }
 
     return answer;
 }
 
-// 참고 : https://ansohxxn.github.io/programmers/85/
-// DP를 이용한 풀이법
+// 참고 : https://programmers.co.kr/
+// 스택을 이용한 풀이법
