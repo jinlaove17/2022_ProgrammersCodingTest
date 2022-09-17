@@ -1,34 +1,54 @@
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
 string solution(string s)
 {
     string answer = "";
+    string str = "";
 
-    int min = INT_MAX;
-    int max = INT_MIN;
+    int space = 0;
 
-    char* p = strtok(const_cast<char*>(s.c_str()), " ");
-
-    while (p != NULL)
+    for (int i = 0; i < s.length(); ++i)
     {
-        int val = atoi(p);
-
-        if (val < min)
+        if (s[i] != ' ')
         {
-            min = val;
+            str.push_back(s[i]);
         }
-
-        if (val > max)
+        else
         {
-            max = val;
-        }
+            ++space;
 
-        p = strtok(NULL, " ");
+            if (i < s.length() - 1 && s[i + 1] != ' ')
+            {
+                transform(str.begin(), str.end(), str.begin(), ::tolower);
+                str[0] = toupper(str[0]);
+
+                answer += str;
+
+                for (int i = 0; i < space; ++i)
+                {
+                    answer.push_back(' ');
+                }
+
+                str.clear();
+                space = 0;
+            }
+        }
     }
 
-    answer = to_string(min) + " " + to_string(max);
+    if (!str.empty())
+    {
+        transform(str.begin(), str.end(), str.begin(), ::tolower);
+        str[0] = toupper(str[0]);
+        answer += str;
+
+        for (int i = 0; i < space; ++i)
+        {
+            answer.push_back(' ');
+        }
+    }
 
     return answer;
 }
