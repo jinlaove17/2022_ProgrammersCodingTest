@@ -1,32 +1,34 @@
-#include <vector>
-#include <stack>
+#include <string>
 
 using namespace std;
 
-vector<int> solution(vector<int> prices)
+string solution(string s)
 {
-    vector<int> answer(prices.size(), 0);
-    stack<int> s;
+    string answer = "";
 
-    for (int i = 0; i < prices.size(); ++i)
+    int min = INT_MAX;
+    int max = INT_MIN;
+
+    char* p = strtok(const_cast<char*>(s.c_str()), " ");
+
+    while (p != NULL)
     {
-        while (!s.empty() && prices[s.top()] > prices[i])
+        int val = atoi(p);
+
+        if (val < min)
         {
-            answer[s.top()] = i - s.top();
-            s.pop();
+            min = val;
         }
 
-        s.push(i);
+        if (val > max)
+        {
+            max = val;
+        }
+
+        p = strtok(NULL, " ");
     }
 
-    while (!s.empty())
-    {
-        answer[s.top()] = prices.size() - 1 - s.top();
-        s.pop();
-    }
+    answer = to_string(min) + " " + to_string(max);
 
     return answer;
 }
-
-// 참고 : https://programmers.co.kr/
-// 스택을 이용한 풀이법
