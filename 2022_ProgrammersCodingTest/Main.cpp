@@ -1,19 +1,25 @@
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-int solution(vector<int> A, vector<int> B)
+int solution(int n)
 {
-    int answer = 0;
-    int size = A.size();
+    int answer = 1;
 
-    sort(A.begin(), A.end());
-    sort(B.begin(), B.end(), greater<int>());
-
-    for (int i = 0; i < size; ++i)
+    for (int i = 1; i <= n - 1; ++i)
     {
-        answer += A[i] * B[i];
+        int sum = i;
+
+        for (int j = i + 1; j <= n; ++j)
+        {
+            sum += j;
+
+            if (sum == n)
+            {
+                ++answer;
+                break;
+            }
+            else if (sum > n)
+            {
+                break;
+            }
+        }
     }
 
     return answer;
