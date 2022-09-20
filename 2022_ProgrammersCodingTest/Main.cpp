@@ -1,26 +1,18 @@
+long long f[100'001];
+
 int solution(int n)
 {
-    int answer = 1;
+    int answer = 0;
 
-    for (int i = 1; i <= n - 1; ++i)
+    f[1] = f[2] = 1;
+
+    for (int i = 3; i <= 100'000; ++i)
     {
-        int sum = i;
-
-        for (int j = i + 1; j <= n; ++j)
-        {
-            sum += j;
-
-            if (sum == n)
-            {
-                ++answer;
-                break;
-            }
-            else if (sum > n)
-            {
-                break;
-            }
-        }
+        // 오버플로우 문제를 해결해야함!
+        f[i] = f[i - 1] % 1234567 + f[i - 2] % 1234567;
     }
+
+    answer = f[n] % 1234567;
 
     return answer;
 }
