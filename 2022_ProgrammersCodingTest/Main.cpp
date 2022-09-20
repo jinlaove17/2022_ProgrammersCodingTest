@@ -1,42 +1,28 @@
-#include <string>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
-string ToBinary(int n)
-{
-    string str;
-
-    while (n > 0)
-    {
-        switch (n % 2)
-        {
-        case 0:
-            str = "0" + str;
-            break;
-        case 1:
-            str = "1" + str;
-            break;
-        }
-
-        n /= 2;
-    }
-
-    return str;
-}
-
-vector<int> solution(string s)
+vector<int> solution(int brown, int yellow)
 {
     vector<int> answer(2, 0);
 
-    while (s != "1")
-    {
-        int oneCount = count(s.begin(), s.end(), '1');
+    // 이차 연립방정식
+    // (1) 2w + 2h - 4 = brown
+    // (2) w * h = brown + yellow
+    // (1)에서 h = brown / 2 - w + 2
+    // 따라서, w * (brown / 2 - w + 2) = brown + yellow
+    int size = brown + yellow;
 
-        ++answer[0];
-        answer[1] += s.length() - oneCount;
-        s = ToBinary(oneCount);
+    // brown은 최소 8개 이상이기 때문에 가로가 최소 3이상, 최대 2500이하이다.
+    for (int w = 3; w <= 2500; ++w)
+    {
+        int h = (brown / 2 - w + 2);
+
+        if (w * h == size)
+        {
+            answer[0] = w;
+            answer[1] = h;
+        }
     }
 
     return answer;
