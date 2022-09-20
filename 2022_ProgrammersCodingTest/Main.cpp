@@ -1,18 +1,43 @@
-long long f[100'001];
+#include <string>
+#include <vector>
+#include <algorithm>
 
-int solution(int n)
+using namespace std;
+
+string ToBinary(int n)
 {
-    int answer = 0;
+    string str;
 
-    f[1] = f[2] = 1;
-
-    for (int i = 3; i <= 100'000; ++i)
+    while (n > 0)
     {
-        // 오버플로우 문제를 해결해야함!
-        f[i] = f[i - 1] % 1234567 + f[i - 2] % 1234567;
+        switch (n % 2)
+        {
+        case 0:
+            str = "0" + str;
+            break;
+        case 1:
+            str = "1" + str;
+            break;
+        }
+
+        n /= 2;
     }
 
-    answer = f[n] % 1234567;
+    return str;
+}
+
+vector<int> solution(string s)
+{
+    vector<int> answer(2, 0);
+
+    while (s != "1")
+    {
+        int oneCount = count(s.begin(), s.end(), '1');
+
+        ++answer[0];
+        answer[1] += s.length() - oneCount;
+        s = ToBinary(oneCount);
+    }
 
     return answer;
 }
