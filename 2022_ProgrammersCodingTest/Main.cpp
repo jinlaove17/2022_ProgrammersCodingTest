@@ -1,28 +1,16 @@
-#include <string>
-#include <stack>
-
-using namespace std;
-
-int solution(string s)
+int solution(int n, int a, int b)
 {
     int answer = 1;
-    stack<char> st;
+    int groupA = (a - 1) / 2 + 1;
+    int groupB = (b - 1) / 2 + 1;
 
-    for (char c : s)
+    while (n > 0 && groupA != groupB)
     {
-        if (!st.empty() && st.top() == c)
-        {
-            st.pop();
-        }
-        else
-        {
-            st.push(c);
-        }
-    }
+        groupA = (groupA - 1) / 2 + 1;
+        groupB = (groupB - 1) / 2 + 1;
+        n /= 2;
 
-    if (!st.empty())
-    {
-        answer = 0;
+        ++answer;
     }
 
     return answer;
