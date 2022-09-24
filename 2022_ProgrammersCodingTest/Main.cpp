@@ -1,62 +1,40 @@
 #include <string>
-#include <stack>
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 
-int solution(string s)
+vector<int> solution(string s)
 {
-    int answer = 0;
-    int len = s.length();
+    vector<int> answer;
+    string str;
+    unordered_map<int, int> um;
 
-    for (int i = 1; i <= len; ++i)
+    for (char c : s)
     {
-        stack<char> st;
-
-        switch (s[0])
+        if ('0' <= c && c <= '9')
         {
-        case '(':
-        case '{':
-        case '[':
+            str.push_back(c);
+        }
+        else if (c == ',' || c == '}')
         {
-            st.push(s[0]);
-
-            bool isValid = true;
-
-            for (int j = 1; j < len; ++j)
+            if (!str.empty())
             {
-                if (s[j] == '(' ||
-                    s[j] == '{' ||
-                    s[j] == '[')
-                {
-                    st.push(s[j]);
-                }
-                else
-                {
-                    char c = st.top();
-
-                    if ((c == '(' && s[j] == ')') ||
-                        (c == '{' && s[j] == '}') ||
-                        (c == '[' && s[j] == ']'))
-                    {
-                        st.pop();
-                    }
-                    else
-                    {
-                        isValid = false;
-                        break;
-                    }
-                }
-            }
-
-            if (st.empty() && isValid)
-            {
-                ++answer;
+                ++um[atoi(str.c_str())];
+                str.clear();
             }
         }
-        break;
-        }
+    }
 
-        rotate(s.begin(), s.begin() + 1, s.end());
+    while (!um.empty())
+    {
+        auto iter = max_element(um.begin(), um.end(), [](auto& a, auto& b) {
+            return a.second < b.second;
+            });
+
+        answer.push_back(iter->first);
+        um.erase(iter);
     }
 
     return answer;
