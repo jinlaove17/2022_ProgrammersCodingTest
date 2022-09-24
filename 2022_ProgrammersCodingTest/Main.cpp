@@ -1,41 +1,33 @@
-#include <string>
 #include <vector>
-#include <unordered_map>
-#include <algorithm>
 
 using namespace std;
 
-vector<int> solution(string s)
+vector<int> solution(int n, long long left, long long right)
 {
     vector<int> answer;
-    string str;
-    unordered_map<int, int> um;
 
-    for (char c : s)
+    answer.reserve(right - left + 1);
+
+    // left와 right가 속한 그룹의 번호를 구한다.
+    int leftGroup = left / n + 1;
+    int rightGroup = right / n + 1;
+
+    // left 그룹부터 right 그룹까지 순회하며, answer의 값을 채운다.
+    for (int i = leftGroup; i <= rightGroup; ++i)
     {
-        if ('0' <= c && c <= '9')
+        for (int j = 0; j < i; ++j)
         {
-            str.push_back(c);
+            answer.push_back(i);
         }
-        else if (c == ',' || c == '}')
+
+        for (int k = 0, num = i + 1; k < n - i; ++k, ++num)
         {
-            if (!str.empty())
-            {
-                ++um[atoi(str.c_str())];
-                str.clear();
-            }
+            answer.push_back(num);
         }
     }
 
-    while (!um.empty())
-    {
-        auto iter = max_element(um.begin(), um.end(), [](auto& a, auto& b) {
-            return a.second < b.second;
-            });
-
-        answer.push_back(iter->first);
-        um.erase(iter);
-    }
+    // 각 그룹에서 left, right만큼 이동하여 시작과 끝 위치를 구하고, answer를 재할당한다.
+    answer.assign(answer.begin() + left % n, answer.end() - (n - right % n) + 1);
 
     return answer;
 }
