@@ -1,47 +1,62 @@
 #include <string>
-#include <vector>
-#include <deque>
+#include <stack>
 
 using namespace std;
 
-int solution(int cacheSize, vector<string> cities)
+int solution(string s)
 {
     int answer = 0;
-    deque<string> cache;
+    int len = s.length();
 
-    for (int i = 0; i < cities.size(); ++i)
+    for (int i = 1; i <= len; ++i)
     {
-        auto iter = find_if(cache.begin(), cache.end(), [&cities, i](const auto& s)
+        stack<char> st;
+
+        switch (s[0])
+        {
+        case '(':
+        case '{':
+        case '[':
+        {
+            st.push(s[0]);
+
+            bool isValid = true;
+
+            for (int j = 1; j < len; ++j)
             {
-                if (_stricmp(s.c_str(), cities[i].c_str()) == 0)
+                if (s[j] == '(' ||
+                    s[j] == '{' ||
+                    s[j] == '[')
                 {
-                    return true;
+                    st.push(s[j]);
                 }
-
-                return false;
-            });
-
-        if (iter != cache.end())
-        {
-            ++answer;
-
-            cache.erase(iter);
-            cache.push_back(cities[i]);
-        }
-        else
-        {
-            answer += 5;
-
-            if (cacheSize > 0)
-            {
-                cache.push_back(cities[i]);
-
-                if (cache.size() > cacheSize)
+                else
                 {
-                    cache.pop_front();
+                    char c = st.top();
+
+                    if ((c == '(' && s[j] == ')') ||
+                        (c == '{' && s[j] == '}') ||
+                        (c == '[' && s[j] == ']'))
+                    {
+                        st.pop();
+                    }
+                    else
+                    {
+                        isValid = false;
+                        break;
+                    }
                 }
             }
+
+            if (st.empty() && isValid)
+            {
+                ++answer;
+            }
         }
+        break;
+        }
+
+        rotate(s.begin(), s.begin() + 1, s.end());
     }
 
     return answer;
