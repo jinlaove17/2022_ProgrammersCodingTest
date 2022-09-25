@@ -1,33 +1,71 @@
-#include <vector>
+#include <string>
+#include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 
-vector<int> solution(int n, long long left, long long right)
+int solution(string str1, string str2)
 {
-    vector<int> answer;
+    int answer = 0;
 
-    answer.reserve(right - left + 1);
+    transform(str1.begin(), str1.end(), str1.begin(), ::tolower);
+    transform(str2.begin(), str2.end(), str2.begin(), ::tolower);
 
-    // left와 right가 속한 그룹의 번호를 구한다.
-    int leftGroup = left / n + 1;
-    int rightGroup = right / n + 1;
+    unordered_map<string, int> str1Group;
+    int len = str1.length();
 
-    // left 그룹부터 right 그룹까지 순회하며, answer의 값을 채운다.
-    for (int i = leftGroup; i <= rightGroup; ++i)
+    // str1에 속한 문자들을 순회하며, 두 글자로 된 다중집합을 만든다.
+    for (int i = 0; i < len - 1; ++i)
     {
-        for (int j = 0; j < i; ++j)
+        if (isalpha(str1[i]) && isalpha(str1[i + 1]))
         {
-            answer.push_back(i);
-        }
-
-        for (int k = 0, num = i + 1; k < n - i; ++k, ++num)
-        {
-            answer.push_back(num);
+            ++str1Group[str1.substr(i, 2)];
         }
     }
 
-    // 각 그룹에서 left, right만큼 이동하여 시작과 끝 위치를 구하고, answer를 재할당한다.
-    answer.assign(answer.begin() + left % n, answer.end() - (n - right % n) + 1);
+    unordered_map<string, int> str2Group;
+
+    len = str2.length();
+
+    // str2에 속한 문자들을 순회하며, 두 글자로 된 다중집합을 만든다.
+    for (int i = 0; i < len - 1; ++i)
+    {
+        if (isalpha(str2[i]) && isalpha(str2[i + 1]))
+        {
+            ++str2Group[str2.substr(i, 2)];
+        }
+    }
+
+    int unionCount = 0;
+    int intersectionCount = 0;
+
+    // str1 다중집합을 순회하며, 합집합 수, 교집합 수를 계산한다.
+    for (const auto& p : str1Group)
+    {
+        int count = str2Group.count(p.first);
+
+        if (count > 0)
+        {
+            intersectionCount += min(p.second, str2Group[p.first]);
+            unionCount += max(p.second, str2Group[p.first]);
+
+            str2Group.erase(p.first);
+        }
+        else
+        {
+            unionCount += p.second;
+        }
+    }
+
+    // str2 다중집합을 순회하며, 나머지 원소들을 합집합 수에 추가한다.
+    for (const auto& p : str2Group)
+    {
+        unionCount += p.second;
+    }
+
+    float analogousMap = (unionCount == 0) ? 1 : static_cast<float>(intersectionCount) / unionCount;
+
+    answer = 65536 * analogousMap;
 
     return answer;
 }
