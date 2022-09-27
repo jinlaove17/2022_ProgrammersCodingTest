@@ -1,88 +1,69 @@
 #include <string>
 #include <vector>
+#include <map>
+#include <algorithm>
 
 using namespace std;
 
-string ToBinary(int n, int k);
-bool IsPrimeNumber(long long n);
-
-int solution(int n, int k)
+vector<int> solution(vector<int> fees, vector<string> records)
 {
-    int answer = 0;
+    vector<int> answer;
 
-    string s = ToBinary(n, k);
-
-    vector<long long> v;
-    string str;
-
-    for (char c : s)
-    {
-        switch (c)
+    sort(records.begin(), records.end(), [](const string& a, const string& b)
         {
-        case '0':
-            if (!str.empty())
+            return a.substr(6, 4) + a.substr(0, 5) < b.substr(6, 4) + b.substr(0, 5);
+        });
+
+    map<string, int> totalParkingMins;
+    int size = records.size();
+
+    for (int i = 0; i < size; ++i)
+    {
+        string num = records[i].substr(6, 4);
+
+        int inHour = atoi(records[i].substr(0, 2).c_str());
+        int inMin = atoi(records[i].substr(3, 2).c_str());
+        int outHour = 0;
+        int outMin = 0;
+
+        if (i < size - 1)
+        {
+            if (num == records[i + 1].substr(6, 4))
             {
-                v.push_back(atoll(str.c_str()));
+                outHour = atoi(records[i + 1].substr(0, 2).c_str());
+                outMin = atoi(records[i + 1].substr(3, 2).c_str());
+
+                ++i;
             }
-
-            str.clear();
-            break;
-        default:
-            str.push_back(c);
-            break;
+            else
+            {
+                outHour = 23;
+                outMin = 59;
+            }
         }
-    }
-
-    if (!str.empty())
-    {
-        v.push_back(atoll(str.c_str()));
-    }
-
-    for (long long num : v)
-    {
-        if (IsPrimeNumber(num))
+        else
         {
-            ++answer;
+            outHour = 23;
+            outMin = 59;
         }
+
+        totalParkingMins[num] += (60 * outHour + outMin) - (60 * inHour + inMin);
+    }
+
+    for (const auto& p : totalParkingMins)
+    {
+        int fee = fees[1];
+
+        if (p.second > fees[0])
+        {
+            int min = p.second - fees[0];
+
+            min = static_cast<int>(ceilf((float)min / fees[2]));
+            fee += fees[3] * min;
+        }
+
+        answer.push_back(fee);
     }
 
     return answer;
-}
-
-string ToBinary(int n, int k)
-{
-    string s;
-
-    while (n > 0)
-    {
-        s = string(1, n % k + '0') + s;
-        n /= k;
-    }
-
-    return s;
-}
-
-bool IsPrimeNumber(long long n)
-{
-    bool isPrimeNumber = true;
-
-    if (n <= 1)
-    {
-        isPrimeNumber = false;
-    }
-    else
-    {
-        long long sqrtN = sqrtf(n);
-
-        for (long long i = 2; i <= sqrtN; ++i)
-        {
-            if (n % i == 0)
-            {
-                isPrimeNumber = false;
-                break;
-            }
-        }
-    }
-
-    return isPrimeNumber;
 }
