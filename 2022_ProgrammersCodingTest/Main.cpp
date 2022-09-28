@@ -1,68 +1,41 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <algorithm>
 
 using namespace std;
 
-vector<int> solution(vector<int> fees, vector<string> records)
+vector<int> solution(string msg)
 {
     vector<int> answer;
 
-    sort(records.begin(), records.end(), [](const string& a, const string& b)
-        {
-            return a.substr(6, 4) + a.substr(0, 5) < b.substr(6, 4) + b.substr(0, 5);
-        });
+    map<string, int> m;
+    int index = 26;
 
-    map<string, int> totalParkingMins;
-    int size = records.size();
-
-    for (int i = 0; i < size; ++i)
+    for (int i = 1; i <= index; ++i)
     {
-        string num = records[i].substr(6, 4);
-
-        int inHour = atoi(records[i].substr(0, 2).c_str());
-        int inMin = atoi(records[i].substr(3, 2).c_str());
-        int outHour = 0;
-        int outMin = 0;
-
-        if (i < size - 1)
-        {
-            if (num == records[i + 1].substr(6, 4))
-            {
-                outHour = atoi(records[i + 1].substr(0, 2).c_str());
-                outMin = atoi(records[i + 1].substr(3, 2).c_str());
-
-                ++i;
-            }
-            else
-            {
-                outHour = 23;
-                outMin = 59;
-            }
-        }
-        else
-        {
-            outHour = 23;
-            outMin = 59;
-        }
-
-        totalParkingMins[num] += (60 * outHour + outMin) - (60 * inHour + inMin);
+        m[string(1, 'A' + (i - 1))] = i;
     }
 
-    for (const auto& p : totalParkingMins)
+    int len = msg.length();
+
+    for (int i = 0; i < len; ++i)
     {
-        int fee = fees[1];
+        string s;
+        int j = i;
 
-        if (p.second > fees[0])
+        for (; j < len; ++j)
         {
-            int min = p.second - fees[0];
+            s.push_back(msg[j]);
 
-            min = static_cast<int>(ceilf((float)min / fees[2]));
-            fee += fees[3] * min;
+            if (m.count(s) == 0)
+            {
+                m[s] = ++index;
+                break;
+            }
         }
 
-        answer.push_back(fee);
+        answer.push_back(m[s.substr(0, j - i)]);
+        i += (j - i - 1);
     }
 
     return answer;
