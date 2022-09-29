@@ -1,41 +1,54 @@
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 using namespace std;
 
-vector<int> solution(string msg)
+vector<string> solution(vector<string> record)
 {
-    vector<int> answer;
+    vector<string> answer;
 
-    map<string, int> m;
-    int index = 26;
+    unordered_map<string, string> um;
+    int size = record.size();
 
-    for (int i = 1; i <= index; ++i)
+    answer.reserve(size);
+
+    for (const string& s : record)
     {
-        m[string(1, 'A' + (i - 1))] = i;
-    }
+        string tmp(s);
 
-    int len = msg.length();
+        const char* state = strtok(const_cast<char*>(tmp.c_str()), " ");
+        const char* uid = strtok(NULL, " ");
+        const char* name = strtok(NULL, " ");
 
-    for (int i = 0; i < len; ++i)
-    {
-        string s;
-        int j = i;
-
-        for (; j < len; ++j)
+        // 마지막 토큰인 name에 대하여 NULL체크를 안하면 값이 이상하다.(이유?)
+        if (name != NULL)
         {
-            s.push_back(msg[j]);
-
-            if (m.count(s) == 0)
-            {
-                m[s] = ++index;
-                break;
-            }
+            um[uid] = name;
         }
 
-        answer.push_back(m[s.substr(0, j - i)]);
-        i += (j - i - 1);
+        if (strcmp(state, "Enter") == 0)
+        {
+            answer.emplace_back("님이 들어왔습니다.");
+        }
+        else if (strcmp(state, "Leave") == 0)
+        {
+            answer.emplace_back("님이 나갔습니다.");
+        }
+    }
+
+    for (int i = 0, j = 0; i < size; ++i)
+    {
+        string tmp(record[i]);
+
+        const char* state = strtok(const_cast<char*>(tmp.c_str()), " ");
+        const char* uid = strtok(NULL, " ");
+
+        if (strcmp(state, "Enter") == 0 || strcmp(state, "Leave") == 0)
+        {
+            answer[j] = um[uid] + answer[j];
+            ++j;
+        }
     }
 
     return answer;
