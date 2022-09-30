@@ -1,46 +1,70 @@
 #include <string>
+#include <vector>
+#include <set>
 
 using namespace std;
 
-string ToBinary(int n, int num);
-
-string solution(int n, int t, int m, int p)
+int solution(int m, int n, vector<string> board)
 {
-    string answer = "";
+    int answer = 0;
 
-    string s = "01";
-    int num = 2;
-
-    while (s.length() < m * t)
+    while (true)
     {
-        s += ToBinary(n, num);
-        ++num;
-    }
+        set<pair<int, int>> s;
 
-    for (int i = p - 1; answer.size() < t; i += m)
-    {
-        answer.push_back(s[i]);
+        for (int i = 0; i < m - 1; ++i)
+        {
+            for (int j = 0; j < n - 1; ++j)
+            {
+                if (board[i][j] != ' ' &&
+                    board[i][j] == board[i + 1][j] &&
+                    board[i][j] == board[i][j + 1] &&
+                    board[i][j] == board[i + 1][j + 1])
+                {
+                    s.emplace(i, j);
+                    s.emplace(i + 1, j);
+                    s.emplace(i, j + 1);
+                    s.emplace(i + 1, j + 1);
+                }
+            }
+        }
+
+        if (s.empty())
+        {
+            break;
+        }
+
+        answer += s.size();
+
+        for (const auto& p : s)
+        {
+            board[p.first][p.second] = ' ';
+        }
+
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = m - 1; j >= 0; --j)
+            {
+                if (board[j][i] == ' ')
+                {
+                    for (int k = j - 1; k >= 0; --k)
+                    {
+                        if (board[k][i] != ' ')
+                        {
+                            board[j][i] = board[k][i];
+                            board[k][i] = ' ';
+                            break;
+                        }
+                    }
+
+                    if (board[j][i] == ' ')
+                    {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     return answer;
-}
-
-string ToBinary(int n, int num)
-{
-    string s;
-
-    while (num > 0)
-    {
-        char c = num % n + '0';
-
-        if (c > '9')
-        {
-            c = 'A' + c - ('9' + 1);
-        }
-
-        s = string(1, c) + s;
-        num /= n;
-    }
-
-    return s;
 }
