@@ -1,70 +1,35 @@
-#include <string>
 #include <vector>
-#include <set>
 
 using namespace std;
 
-int solution(int m, int n, vector<string> board)
+void DFS(int& answer, int k, vector<vector<int>>& dungeons, vector<bool>& isVisited, int depth);
+
+int solution(int k, vector<vector<int>> dungeons)
 {
-    int answer = 0;
+    int answer = -1;
 
-    while (true)
+    vector<bool> isVisited(dungeons.size());
+
+    DFS(answer, k, dungeons, isVisited, 0);
+
+    return answer;
+}
+
+void DFS(int& answer, int k, vector<vector<int>>& dungeons, vector<bool>& isVisited, int depth)
+{
+    int size = dungeons.size();
+
+    for (int i = 0; i < size; ++i)
     {
-        set<pair<int, int>> s;
-
-        for (int i = 0; i < m - 1; ++i)
+        if (!isVisited[i] && k - dungeons[i][0] >= 0)
         {
-            for (int j = 0; j < n - 1; ++j)
-            {
-                if (board[i][j] != ' ' &&
-                    board[i][j] == board[i + 1][j] &&
-                    board[i][j] == board[i][j + 1] &&
-                    board[i][j] == board[i + 1][j + 1])
-                {
-                    s.emplace(i, j);
-                    s.emplace(i + 1, j);
-                    s.emplace(i, j + 1);
-                    s.emplace(i + 1, j + 1);
-                }
-            }
-        }
+            isVisited[i] = true;
 
-        if (s.empty())
-        {
-            break;
-        }
+            DFS(answer, k - dungeons[i][1], dungeons, isVisited, depth + 1);
 
-        answer += s.size();
-
-        for (const auto& p : s)
-        {
-            board[p.first][p.second] = ' ';
-        }
-
-        for (int i = 0; i < n; ++i)
-        {
-            for (int j = m - 1; j >= 0; --j)
-            {
-                if (board[j][i] == ' ')
-                {
-                    for (int k = j - 1; k >= 0; --k)
-                    {
-                        if (board[k][i] != ' ')
-                        {
-                            board[j][i] = board[k][i];
-                            board[k][i] = ' ';
-                            break;
-                        }
-                    }
-
-                    if (board[j][i] == ' ')
-                    {
-                        break;
-                    }
-                }
-            }
+            isVisited[i] = false;
         }
     }
 
-    return answer;
+    answer = max(answer, depth);
 }
