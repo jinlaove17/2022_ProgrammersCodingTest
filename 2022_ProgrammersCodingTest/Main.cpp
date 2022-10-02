@@ -2,34 +2,20 @@
 
 using namespace std;
 
-void DFS(int& answer, int k, vector<vector<int>>& dungeons, vector<bool>& isVisited, int depth);
-
-int solution(int k, vector<vector<int>> dungeons)
+int solution(vector<vector<int>> land)
 {
-    int answer = -1;
+    int answer = 0;
 
-    vector<bool> isVisited(dungeons.size());
+    const int row = land.size();
+    const int col = 4;
 
-    DFS(answer, k, dungeons, isVisited, 0);
-
-    return answer;
-}
-
-void DFS(int& answer, int k, vector<vector<int>>& dungeons, vector<bool>& isVisited, int depth)
-{
-    int size = dungeons.size();
-
-    for (int i = 0; i < size; ++i)
+    for (int i = 1; i < row; ++i)
     {
-        if (!isVisited[i] && k - dungeons[i][0] >= 0)
+        for (int j = 0; j < col; ++j)
         {
-            isVisited[i] = true;
-
-            DFS(answer, k - dungeons[i][1], dungeons, isVisited, depth + 1);
-
-            isVisited[i] = false;
+            land[i][j] += max(land[i - 1][(j + 1) % col], max(land[i - 1][(j + 2) % col], land[i - 1][(j + 3) % col]));
         }
     }
 
-    answer = max(answer, depth);
+    return max(land[row - 1][0], max(land[row - 1][1], max(land[row - 1][2], land[row - 1][3])));
 }
