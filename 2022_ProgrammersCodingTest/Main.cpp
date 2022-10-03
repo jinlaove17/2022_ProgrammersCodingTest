@@ -1,21 +1,53 @@
+#include <string>
 #include <vector>
 
 using namespace std;
 
-int solution(vector<vector<int>> land)
+int solution(string skill, vector<string> skill_trees)
 {
     int answer = 0;
+    vector<string> v;
 
-    const int row = land.size();
-    const int col = 4;
+    v.reserve(skill_trees.size());
 
-    for (int i = 1; i < row; ++i)
+    for (const auto& skill_tree : skill_trees)
     {
-        for (int j = 0; j < col; ++j)
+        string s;
+
+        for (char c1 : skill_tree)
         {
-            land[i][j] += max(land[i - 1][(j + 1) % col], max(land[i - 1][(j + 2) % col], land[i - 1][(j + 3) % col]));
+            for (char c2 : skill)
+            {
+                if (c1 == c2)
+                {
+                    s.push_back(c1);
+                    break;
+                }
+            }
+        }
+
+        v.push_back(s);
+    }
+
+    for (const string& s : v)
+    {
+        bool isValid = true;
+        int len = s.length();
+
+        for (int i = 0; i < len; ++i)
+        {
+            if (s[i] != skill[i])
+            {
+                isValid = false;
+                break;
+            }
+        }
+
+        if (isValid)
+        {
+            ++answer;
         }
     }
 
-    return max(land[row - 1][0], max(land[row - 1][1], max(land[row - 1][2], land[row - 1][3])));
+    return answer;
 }
