@@ -1,46 +1,19 @@
-#include <vector>
-#include <queue>
+int DP[60001];
 
-using namespace std;
-
-int solution(int bridge_length, int weight, vector<int> truck_weights)
+int solution(int n)
 {
     int answer = 0;
+    const int mod = 1'000'000'007;
 
-    queue<int> q;
+    DP[1] = 1;
+    DP[2] = 2;
 
-    for (int i = 0; i < bridge_length; ++i)
+    for (int i = 3; i <= n; ++i)
     {
-        q.push(0);
+        DP[i] = DP[i - 1] % mod + DP[i - 2] % mod;
     }
 
-    int size = truck_weights.size();
-    int totalWeight = 0;
-
-    for (int i = 0; i < size; )
-    {
-        totalWeight -= q.front();
-        q.pop();
-
-        if (totalWeight + truck_weights[i] <= weight)
-        {
-            totalWeight += truck_weights[i];
-            q.push(truck_weights[i]);
-            ++i;
-        }
-        else
-        {
-            q.push(0);
-        }
-
-        ++answer;
-    }
-
-    while (!q.empty())
-    {
-        q.pop();
-        ++answer;
-    }
+    answer = DP[n] % mod;
 
     return answer;
 }
