@@ -1,45 +1,44 @@
-#include <string>
+#include <vector>
+#include <queue>
 
 using namespace std;
 
-int solution(string word)
+int solution(int bridge_length, int weight, vector<int> truck_weights)
 {
     int answer = 0;
 
-    string s;
+    queue<int> q;
 
-    while (s != word)
+    for (int i = 0; i < bridge_length; ++i)
     {
-        if (s.length() < 5)
+        q.push(0);
+    }
+
+    int size = truck_weights.size();
+    int totalWeight = 0;
+
+    for (int i = 0; i < size; )
+    {
+        totalWeight -= q.front();
+        q.pop();
+
+        if (totalWeight + truck_weights[i] <= weight)
         {
-            s.push_back('A');
+            totalWeight += truck_weights[i];
+            q.push(truck_weights[i]);
+            ++i;
         }
         else
         {
-            while (s.back() == 'U')
-            {
-                s.pop_back();
-            }
-
-            char& back = s.back();
-
-            switch (back)
-            {
-            case 'A':
-                back = 'E';
-                break;
-            case 'E':
-                back = 'I';
-                break;
-            case 'I':
-                back = 'O';
-                break;
-            case 'O':
-                back = 'U';
-                break;
-            }
+            q.push(0);
         }
 
+        ++answer;
+    }
+
+    while (!q.empty())
+    {
+        q.pop();
         ++answer;
     }
 
