@@ -1,19 +1,38 @@
-int DP[60001];
+#include <vector>
+#include <bitset>
 
-int solution(int n)
+using namespace std;
+
+long long f(long long n);
+
+vector<long long> solution(vector<long long> numbers)
 {
-    int answer = 0;
-    const int mod = 1'000'000'007;
+    vector<long long> answer;
 
-    DP[1] = 1;
-    DP[2] = 2;
-
-    for (int i = 3; i <= n; ++i)
+    for (long long number : numbers)
     {
-        DP[i] = DP[i - 1] % mod + DP[i - 2] % mod;
+        answer.push_back(f(number));
     }
 
-    answer = DP[n] % mod;
-
     return answer;
+}
+
+long long f(long long n)
+{
+    bitset<64> bs = n;
+
+    if (bs[0] == 0)
+    {
+        bs[0] = 1;
+    }
+    else
+    {
+        // bitset의 인덱스는 오른쪽부터 시작한다.
+        int lastZeroLoc = bs.size() - bs.to_string().rfind('0') - 1;
+
+        bs[lastZeroLoc] = 1;
+        bs[lastZeroLoc - 1] = 0;
+    }
+
+    return bs.to_ulong();
 }
