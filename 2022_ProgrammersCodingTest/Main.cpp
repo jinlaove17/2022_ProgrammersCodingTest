@@ -1,38 +1,77 @@
+#include <string>
 #include <vector>
-#include <bitset>
+#include <unordered_set>
 
 using namespace std;
 
-long long f(long long n);
+void DFS(vector<bool>& isVisited, unordered_set<int>& us, const string& numbers, string& current);
+bool CheckPrimeNumber(int num);
 
-vector<long long> solution(vector<long long> numbers)
+int solution(string numbers)
 {
-    vector<long long> answer;
+    int answer = 0;
 
-    for (long long number : numbers)
-    {
-        answer.push_back(f(number));
-    }
+    vector<bool> isVisited(numbers.size());
+    unordered_set<int> us;
+    string s;
+
+    DFS(isVisited, us, numbers, s);
+
+    answer = us.size();
 
     return answer;
 }
 
-long long f(long long n)
+void DFS(vector<bool>& isVisited, unordered_set<int>& us, const string& numbers, string& current)
 {
-    bitset<64> bs = n;
-
-    if (bs[0] == 0)
+    if (!current.empty())
     {
-        bs[0] = 1;
+        int num = stoi(current);
+
+        if (CheckPrimeNumber(num))
+        {
+            us.insert(num);
+        }
+    }
+
+    int size = numbers.size();
+
+    for (int i = 0; i < size; ++i)
+    {
+        if (!isVisited[i])
+        {
+            isVisited[i] = true;
+
+            string s = current + string(1, numbers[i]);
+
+            DFS(isVisited, us, numbers, s);
+
+            isVisited[i] = false;
+        }
+    }
+}
+
+bool CheckPrimeNumber(int num)
+{
+    bool isPrimeNumber = true;
+
+    if (num < 2 || (num > 2 && num % 2 == 0))
+    {
+        isPrimeNumber = false;
     }
     else
     {
-        // bitset의 인덱스는 오른쪽부터 시작한다.
-        int lastZeroLoc = bs.size() - bs.to_string().rfind('0') - 1;
+        int sqrtNum = sqrtf(num);
 
-        bs[lastZeroLoc] = 1;
-        bs[lastZeroLoc - 1] = 0;
+        for (int i = 2; i <= sqrtNum; ++i)
+        {
+            if (num % i == 0)
+            {
+                isPrimeNumber = false;
+                break;
+            }
+        }
     }
 
-    return bs.to_ulong();
+    return isPrimeNumber;
 }
