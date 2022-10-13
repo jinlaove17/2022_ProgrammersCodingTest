@@ -1,77 +1,53 @@
 #include <string>
 #include <vector>
-#include <unordered_set>
+#include <unordered_map>
 
 using namespace std;
 
-void DFS(vector<bool>& isVisited, unordered_set<int>& us, const string& numbers, string& current);
-bool CheckPrimeNumber(int num);
+bool CanAllDiscount(vector<string>& want, vector<int>& number, unordered_map<string, int>& um);
 
-int solution(string numbers)
+int solution(vector<string> want, vector<int> number, vector<string> discount)
 {
     int answer = 0;
 
-    vector<bool> isVisited(numbers.size());
-    unordered_set<int> us;
-    string s;
+    unordered_map<string, int> um;
 
-    DFS(isVisited, us, numbers, s);
+    for (int i = 0; i < 10; ++i)
+    {
+        ++um[discount[i]];
+    }
 
-    answer = us.size();
+    if (CanAllDiscount(want, number, um))
+    {
+        ++answer;
+    }
+
+    for (int i = 1; i <= discount.size() - 10; ++i)
+    {
+        --um[discount[i - 1]];
+        ++um[discount[i + 9]];
+
+        if (CanAllDiscount(want, number, um))
+        {
+            ++answer;
+        }
+    }
 
     return answer;
 }
 
-void DFS(vector<bool>& isVisited, unordered_set<int>& us, const string& numbers, string& current)
+bool CanAllDiscount(vector<string>& want, vector<int>& number, unordered_map<string, int>& um)
 {
-    if (!current.empty())
-    {
-        int num = stoi(current);
+    bool canAllDiscount = true;
 
-        if (CheckPrimeNumber(num))
+    for (int i = 0; i < want.size(); ++i)
+    {
+        if (um[want[i]] < number[i])
         {
-            us.insert(num);
+            canAllDiscount = false;
+            break;
         }
     }
 
-    int size = numbers.size();
-
-    for (int i = 0; i < size; ++i)
-    {
-        if (!isVisited[i])
-        {
-            isVisited[i] = true;
-
-            string s = current + string(1, numbers[i]);
-
-            DFS(isVisited, us, numbers, s);
-
-            isVisited[i] = false;
-        }
-    }
-}
-
-bool CheckPrimeNumber(int num)
-{
-    bool isPrimeNumber = true;
-
-    if (num < 2 || (num > 2 && num % 2 == 0))
-    {
-        isPrimeNumber = false;
-    }
-    else
-    {
-        int sqrtNum = sqrtf(num);
-
-        for (int i = 2; i <= sqrtNum; ++i)
-        {
-            if (num % i == 0)
-            {
-                isPrimeNumber = false;
-                break;
-            }
-        }
-    }
-
-    return isPrimeNumber;
+    return canAllDiscount;
 }
