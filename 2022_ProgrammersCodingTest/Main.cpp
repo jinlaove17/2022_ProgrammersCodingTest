@@ -1,53 +1,58 @@
-#include <string>
 #include <vector>
-#include <unordered_map>
 
 using namespace std;
 
-bool CanAllDiscount(vector<string>& want, vector<int>& number, unordered_map<string, int>& um);
-
-int solution(vector<string> want, vector<int> number, vector<string> discount)
+vector<int> solution(int n)
 {
-    int answer = 0;
+    vector<int> answer;
 
-    unordered_map<string, int> um;
+    vector<vector<int>> v(n, vector<int>(n));
 
-    for (int i = 0; i < 10; ++i)
+    int dir = 0;
+    int x = 0;
+    int y = 0;
+    int num = 1;
+
+    for (int i = 0; i < n; ++i)
     {
-        ++um[discount[i]];
-    }
-
-    if (CanAllDiscount(want, number, um))
-    {
-        ++answer;
-    }
-
-    for (int i = 1; i <= discount.size() - 10; ++i)
-    {
-        --um[discount[i - 1]];
-        ++um[discount[i + 9]];
-
-        if (CanAllDiscount(want, number, um))
+        switch (dir)
         {
-            ++answer;
+        case 0: // Down
+            for (int j = i; j < n; ++j)
+            {
+                v[y++][x] = num++;
+            }
+            --y;
+            ++x;
+            break;
+        case 1: // Right
+            for (int j = i; j < n; ++j)
+            {
+                v[y][x++] = num++;
+            }
+            --y;
+            x -= 2;
+            break;
+        case 2: // Left Up
+            for (int j = i; j < n; ++j)
+            {
+                v[y--][x--] = num++;
+            }
+            y += 2;
+            ++x;
+            break;
+        }
+
+        dir = (dir + 1) % 3;
+    }
+
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < i + 1; ++j)
+        {
+            answer.push_back(v[i][j]);
         }
     }
 
     return answer;
-}
-
-bool CanAllDiscount(vector<string>& want, vector<int>& number, unordered_map<string, int>& um)
-{
-    bool canAllDiscount = true;
-
-    for (int i = 0; i < want.size(); ++i)
-    {
-        if (um[want[i]] < number[i])
-        {
-            canAllDiscount = false;
-            break;
-        }
-    }
-
-    return canAllDiscount;
 }
