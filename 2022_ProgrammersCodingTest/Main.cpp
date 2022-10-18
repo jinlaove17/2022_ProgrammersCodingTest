@@ -1,62 +1,81 @@
+#include <string>
 #include <vector>
-#include <set>
+#include <algorithm>
 
 using namespace std;
 
-vector<int> solution(int n, long long k)
+string GetHead(const string& s);
+int GetNumber(const string& s);
+
+vector<string> solution(vector<string> files)
 {
-    vector<int> answer;
-
-    answer.reserve(n);
-
-    vector<long long> f(n + 1, 1);
-
-    for (int i = 2; i <= n; ++i)
-    {
-        f[i] = i * f[i - 1];
-    }
-
-    set<int> s;
-
-    for (int i = 1; i <= n; ++i)
-    {
-        s.insert(i);
-    }
-
-    for (int i = n; i >= 1; --i)
-    {
-        long long period = f[i] / i;
-        long long group = ceill((double)k / period);
-        auto iter = s.begin();
-
-        advance(iter, group - 1);
-
-        int num = *iter;
-
-        s.erase(num);
-        answer.push_back(num);
-
-        k %= period;
-
-        if (k == 0)
+    stable_sort(files.begin(), files.end(),
+        [](const string& a, const string& b)
         {
-            for (auto it = s.rbegin(); it != s.rend(); ++it)
+            string head1 = GetHead(a);
+            string head2 = GetHead(b);
+
+            if (head1 == head2)
             {
-                answer.push_back(*it);
+                int n1 = GetNumber(a);
+                int n2 = GetNumber(b);
+
+                return n1 < n2;
             }
 
-            break;
+            return head1 < head2;
+        });
+
+    return files;
+}
+
+string GetHead(const string& s)
+{
+    string head;
+
+    for (char c : s)
+    {
+        if (!isdigit(c))
+        {
+            head.push_back(tolower(c));
         }
-        else if (k == 1)
+        else
         {
-            for (auto it = s.begin(); it != s.end(); ++it)
-            {
-                answer.push_back(*it);
-            }
-
             break;
         }
     }
 
-    return answer;
+    return head;
+}
+
+int GetNumber(const string& s)
+{
+    string numStr;
+
+    for (int i = 0; i < s.length(); ++i)
+    {
+        if (isdigit(s[i]))
+        {
+            numStr.push_back(s[i]);
+
+            for (int j = i + 1; j < s.length(); ++j)
+            {
+                if (isdigit(s[j]))
+                {
+                    numStr.push_back(s[j]);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        if (!numStr.empty())
+        {
+            break;
+        }
+    }
+
+    return stoi(numStr);
 }
