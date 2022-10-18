@@ -1,33 +1,62 @@
 #include <vector>
-#include <unordered_set>
+#include <set>
 
 using namespace std;
 
-int solution(vector<int> elements)
+vector<int> solution(int n, long long k)
 {
-    int answer = 0;
-    unordered_set<int> s;
-    int size = elements.size();
+    vector<int> answer;
 
-    // 길이
-    for (int i = 1; i <= size; ++i)
+    answer.reserve(n);
+
+    vector<long long> f(n + 1, 1);
+
+    for (int i = 2; i <= n; ++i)
     {
-        // 현재 인덱스
-        for (int j = 0; j < size; ++j)
-        {
-            int sum = 0;
-
-            // 현재 인덱스부터 길이만큼의 합
-            for (int k = 0; k < i; ++k)
-            {
-                sum += elements[(j + k) % size];
-            }
-
-            s.insert(sum);
-        }
+        f[i] = i * f[i - 1];
     }
 
-    answer = s.size();
+    set<int> s;
+
+    for (int i = 1; i <= n; ++i)
+    {
+        s.insert(i);
+    }
+
+    for (int i = n; i >= 1; --i)
+    {
+        long long period = f[i] / i;
+        long long group = ceill((double)k / period);
+        auto iter = s.begin();
+
+        advance(iter, group - 1);
+
+        int num = *iter;
+
+        s.erase(num);
+        answer.push_back(num);
+
+        k %= period;
+
+        if (k == 0)
+        {
+            for (auto it = s.rbegin(); it != s.rend(); ++it)
+            {
+                answer.push_back(*it);
+            }
+
+            break;
+        }
+        else if (k == 1)
+        {
+            for (auto it = s.begin(); it != s.end(); ++it)
+            {
+                answer.push_back(*it);
+            }
+
+            break;
+        }
+    }
 
     return answer;
 }
