@@ -1,81 +1,87 @@
-#include <string>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
-string GetHead(const string& s);
-int GetNumber(const string& s);
+int FindMinNode(int N, const vector<int>& distance, const vector<bool>& isVisited);
 
-vector<string> solution(vector<string> files)
+int solution(int N, vector<vector<int>> road, int K)
 {
-    stable_sort(files.begin(), files.end(),
-        [](const string& a, const string& b)
-        {
-            string head1 = GetHead(a);
-            string head2 = GetHead(b);
+    // 1번 마을은 무조건 배달이 가능하다.
+    int answer = 1;
 
-            if (head1 == head2)
-            {
-                int n1 = GetNumber(a);
-                int n2 = GetNumber(b);
+    // 각 마을 간의 최소 시간(가중치)을 계산한다.
+    vector<vector<int>> g(N, vector<int>(N, INT_MAX));
 
-                return n1 < n2;
-            }
-
-            return head1 < head2;
-        });
-
-    return files;
-}
-
-string GetHead(const string& s)
-{
-    string head;
-
-    for (char c : s)
+    for (int i = 0; i < road.size(); ++i)
     {
-        if (!isdigit(c))
+        if (g[road[i][0] - 1][road[i][1] - 1] > road[i][2])
         {
-            head.push_back(tolower(c));
-        }
-        else
-        {
-            break;
+            // 양방향이기 때문에 반대도 설정해준다.
+            g[road[i][0] - 1][road[i][1] - 1] = road[i][2];
+            g[road[i][1] - 1][road[i][0] - 1] = road[i][2];
         }
     }
 
-    return head;
-}
+    // 다익스트라 알고리즘
+    vector<int> distance(N);
+    vector<bool> isVisited(N);
+    int start = 0;
 
-int GetNumber(const string& s)
-{
-    string numStr;
-
-    for (int i = 0; i < s.length(); ++i)
+    for (int i = 0; i < N; ++i)
     {
-        if (isdigit(s[i]))
-        {
-            numStr.push_back(s[i]);
+        distance[i] = g[start][i];
+    }
 
-            for (int j = i + 1; j < s.length(); ++j)
-            {
-                if (isdigit(s[j]))
-                {
-                    numStr.push_back(s[j]);
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
+    isVisited[start] = true;
 
-        if (!numStr.empty())
+    for (int i = 0; i < N - 1; ++i)
+    {
+        int node = FindMinNode(N, distance, isVisited);
+
+        if (node == -1)
         {
             break;
         }
+
+        isVisited[node] = true;
+
+        for (int j = 0; j < N; ++j)
+        {
+            // 인접한 노드의 거리를 갱신한다.
+            if (!isVisited[j] && g[node][j] != INT_MAX)
+            {
+                if (distance[j] > distance[node] + g[node][j])
+                {
+                    distance[j] = distance[node] + g[node][j];
+                }
+            }
+        }
     }
 
-    return stoi(numStr);
+    for (int i = 1; i < N; ++i)
+    {
+        if (distance[i] <= K)
+        {
+            ++answer;
+        }
+    }
+
+    return answer;
+}
+
+int FindMinNode(int N, const vector<int>& distance, const vector<bool>& isVisited)
+{
+    int minNode = -1;
+    int minValue = INT_MAX;
+
+    for (int i = 0; i < N; ++i)
+    {
+        if (!isVisited[i] && distance[i] < minValue)
+        {
+            minNode = i;
+            minValue = distance[i];
+        }
+    }
+
+    return minNode;
 }
