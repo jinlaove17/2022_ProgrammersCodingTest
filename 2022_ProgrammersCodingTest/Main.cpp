@@ -1,75 +1,63 @@
 #include <vector>
+#include <queue>
+#include <stack>
 
 using namespace std;
 
-int DFS(int n, int current, const vector<vector<bool>>& adjMat, vector<bool>& isVisited);
-
-int solution(int n, vector<vector<int>> wires)
+int solution(vector<int> order)
 {
-    int answer = INT_MAX;
+    int answer = 0;
 
-    vector<vector<bool>> adjMat(n + 1, vector<bool>(n + 1));
+    queue<int> q;
 
-    for (int i = 0; i < wires.size(); ++i)
+    for (int i = 0; i < order.size(); ++i)
     {
-        int u = wires[i][0];
-        int v = wires[i][1];
-
-        adjMat[u][v] = adjMat[v][u] = true;
+        q.push(i + 1);
     }
 
-    for (int i = 0; i < wires.size(); ++i)
+    stack<int> s;
+    int idx = 0;
+
+    while (!q.empty())
     {
-        int u = wires[i][0];
-        int v = wires[i][1];
-
-        adjMat[u][v] = adjMat[v][u] = false;
-
-        vector<bool> isVisited(n + 1);
-        vector<int> groupCount;
-
-        // 하나의 전선을 끊었기 때문에 무조건 2그룹으로 나뉘게 된다.
-        groupCount.reserve(2);
-
-        for (int i = 1; i <= n; ++i)
+        if (!s.empty())
         {
-            int count = DFS(n, i, adjMat, isVisited);
-
-            if (count)
+            if (s.top() == order[idx])
             {
-                groupCount.push_back(count);
+                s.pop();
+                ++idx;
+                ++answer;
+
+                continue;
             }
         }
 
-        answer = min(answer, abs(groupCount[0] - groupCount[1]));
-        adjMat[u][v] = adjMat[v][u] = true;
+        int front = q.front();
 
-        if (answer == 0)
+        q.pop();
+
+        if (front != order[idx])
+        {
+            s.push(front);
+        }
+        else
+        {
+            ++idx;
+            ++answer;
+        }
+    }
+
+    while (!s.empty())
+    {
+        if (s.top() != order[idx])
         {
             break;
         }
+
+        s.pop();
+        ++idx;
+        ++answer;
     }
 
     return answer;
-}
-
-int DFS(int n, int current, const vector<vector<bool>>& adjMat, vector<bool>& isVisited)
-{
-    int count = 0;
-
-    if (!isVisited[current])
-    {
-        isVisited[current] = true;
-        count = 1;
-
-        for (int i = 1; i <= n; ++i)
-        {
-            if (!isVisited[i] && adjMat[current][i])
-            {
-                count += DFS(n, i, adjMat, isVisited);
-            }
-        }
-    }
-
-    return count;
 }
