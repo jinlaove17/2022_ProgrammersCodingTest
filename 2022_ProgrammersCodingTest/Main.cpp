@@ -1,62 +1,40 @@
 #include <vector>
-#include <queue>
-#include <stack>
+#include <unordered_map>
 
 using namespace std;
 
-int solution(vector<int> order)
+int solution(vector<int> topping)
 {
     int answer = 0;
 
-    queue<int> q;
+    unordered_map<int, int> um[2];
 
-    for (int i = 0; i < order.size(); ++i)
+    ++um[0][topping[0]];
+
+    for (int i = 1; i < topping.size(); ++i)
     {
-        q.push(i + 1);
+        ++um[1][topping[i]];
     }
 
-    stack<int> s;
-    int idx = 0;
-
-    while (!q.empty())
+    if (um[0].size() == um[1].size())
     {
-        if (!s.empty())
-        {
-            if (s.top() == order[idx])
-            {
-                s.pop();
-                ++idx;
-                ++answer;
+        ++answer;
+    }
 
-                continue;
-            }
+    for (int i = 1; i < topping.size(); ++i)
+    {
+        ++um[0][topping[i]];
+        --um[1][topping[i]];
+
+        if (um[1][topping[i]] == 0)
+        {
+            um[1].erase(topping[i]);
         }
 
-        int front = q.front();
-
-        q.pop();
-
-        if (front != order[idx])
+        if (um[0].size() == um[1].size())
         {
-            s.push(front);
-        }
-        else
-        {
-            ++idx;
             ++answer;
         }
-    }
-
-    while (!s.empty())
-    {
-        if (s.top() != order[idx])
-        {
-            break;
-        }
-
-        s.pop();
-        ++idx;
-        ++answer;
     }
 
     return answer;
