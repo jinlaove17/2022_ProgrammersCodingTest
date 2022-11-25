@@ -1,84 +1,72 @@
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int solution(vector<int> queue1, vector<int> queue2)
+int Kruskal(int n, vector<vector<int>>& costs);
+int GetRoot(const vector<int>& parents, int current);
+void SetUnion(vector<int>& parents, int root1, int root2);
+
+int solution(int n, vector<vector<int>> costs)
 {
-    int answer = 0;
+    int answer = Kruskal(n, costs);
 
-    long queue1Total = 0;
-    long queue2Total = 0;
+    return answer;
+}
 
-    for (int i = 0; i < queue1.size(); ++i)
-    {
-        queue1Total += queue1[i];
-        queue2Total += queue2[i];
-    }
-
-    long goalTotal = queue1Total + queue2Total;
-
-    // 모든 원소의 합이 홀수인 경우 두 큐의 합을 같게 할 수 없으므로 -1을 반환한다.
-    if (goalTotal % 2 == 1)
-    {
-        answer = -1;
-    }
-    else
-    {
-        int queue1Index = 0;
-        int queue2Index = 0;
-
-        while (true)
+int Kruskal(int n, vector<vector<int>>& costs)
+{
+    sort(costs.begin(), costs.end(), [](const vector<int>& v1, const vector<int>& v2)
         {
-            if (queue1Total == queue2Total)
-            {
-                break;
-            }
-            else if (queue1Total > queue2Total)
-            {
-                if (queue1Index < queue1.size())
-                {
-                    queue1Total -= queue1[queue1Index];
-                    queue2Total += queue1[queue1Index];
-                }
-                else if (queue1Index < queue1.size() + queue2.size())
-                {
-                    queue1Total -= queue2[queue1Index - queue2.size()];
-                    queue2Total += queue2[queue1Index - queue2.size()];
-                }
-                else
-                {
-                    answer = -1;
+            return v1[2] < v2[2];
+        });
 
-                    break;
-                }
+    vector<int> parents(n);
 
-                ++queue1Index;
-            }
-            else
-            {
-                if (queue2Index < queue2.size())
-                {
-                    queue2Total -= queue2[queue2Index];
-                    queue1Total += queue2[queue2Index];
-                }
-                else if (queue2Index < queue2.size() + queue1.size())
-                {
-                    queue2Total -= queue1[queue2Index - queue1.size()];
-                    queue1Total += queue1[queue2Index - queue1.size()];
-                }
-                else
-                {
-                    answer = -1;
+    // 자기 자신의 인덱스를 부모로 만든다.
+    for (int i = 0; i < n; ++i)
+    {
+        parents[i] = i;
+    }
 
-                    break;
-                }
+    int totalCost = 0;
 
-                ++queue2Index;
-            }
+    // n - 1개의 간선을 선택할 때까지 반복한다.
+    for (int i = 0, j = 0; i < n - 1; ++j)
+    {
+        int root1 = GetRoot(parents, costs[j][0]);
+        int root2 = GetRoot(parents, costs[j][1]);
 
-            ++answer;
+        // 두 정점이 다른 집합이라면 합친다.
+        if (root1 != root2)
+        {
+            SetUnion(parents, root1, root2);
+            totalCost += costs[j][2];
+            ++i;
         }
     }
 
-    return answer;
+    return totalCost;
+}
+
+int GetRoot(const vector<int>& parents, int current)
+{
+    while (parents[current] != current)
+    {
+        current = parents[current];
+    }
+
+    return current;
+}
+
+void SetUnion(vector<int>& parents, int root1, int root2)
+{
+    if (root1 < root2)
+    {
+        parents[root2] = root1;
+    }
+    else
+    {
+        parents[root1] = root2;
+    }
 }
