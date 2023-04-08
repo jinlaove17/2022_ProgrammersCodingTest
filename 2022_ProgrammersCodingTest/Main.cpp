@@ -1,72 +1,45 @@
 #include <vector>
+#include <unordered_map>
 #include <algorithm>
 
 using namespace std;
 
-int Kruskal(int n, vector<vector<int>>& costs);
-int GetRoot(const vector<int>& parents, int current);
-void SetUnion(vector<int>& parents, int root1, int root2);
-
-int solution(int n, vector<vector<int>> costs)
+int solution(int k, vector<int> tangerine)
 {
-    int answer = Kruskal(n, costs);
+    int answer = 0;
 
-    return answer;
-}
+    // 크기에 따른 귤의 개수를 구한다.
+    unordered_map<int, int> counts;
 
-int Kruskal(int n, vector<vector<int>>& costs)
-{
-    sort(costs.begin(), costs.end(), [](const vector<int>& v1, const vector<int>& v2)
-        {
-            return v1[2] < v2[2];
-        });
-
-    vector<int> parents(n);
-
-    // 자기 자신의 인덱스를 부모로 만든다.
-    for (int i = 0; i < n; ++i)
+    for (int n : tangerine)
     {
-        parents[i] = i;
+        ++counts[n];
     }
 
-    int totalCost = 0;
+    // 귤의 개수
+    vector<int> v;
 
-    // n - 1개의 간선을 선택할 때까지 반복한다.
-    for (int i = 0, j = 0; i < n - 1; ++j)
+    v.reserve(counts.size());
+
+    for (auto iter = counts.begin(); iter != counts.end(); ++iter)
     {
-        int root1 = GetRoot(parents, costs[j][0]);
-        int root2 = GetRoot(parents, costs[j][1]);
+        v.push_back(iter->second);
+    }
 
-        // 두 정점이 다른 집합이라면 합친다.
-        if (root1 != root2)
+    // 귤의 개수에 따라 내림차순으로 정렬한다.
+    sort(v.begin(), v.end(), [](int a, int b) { return a > b; });
+
+    // 내림차순으로 정렬된 벡터를 순회하며, 귤의 개수가 0개 이하가 될 때까지 귤을 담는다.
+    for (int n : v)
+    {
+        k -= n;
+        ++answer;
+
+        if (k <= 0)
         {
-            SetUnion(parents, root1, root2);
-            totalCost += costs[j][2];
-            ++i;
+            break;
         }
     }
 
-    return totalCost;
-}
-
-int GetRoot(const vector<int>& parents, int current)
-{
-    while (parents[current] != current)
-    {
-        current = parents[current];
-    }
-
-    return current;
-}
-
-void SetUnion(vector<int>& parents, int root1, int root2)
-{
-    if (root1 < root2)
-    {
-        parents[root2] = root1;
-    }
-    else
-    {
-        parents[root1] = root2;
-    }
+    return answer;
 }
