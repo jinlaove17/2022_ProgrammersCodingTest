@@ -1,43 +1,40 @@
 #include <vector>
-#include <unordered_map>
-#include <algorithm>
 
 using namespace std;
 
-int solution(int k, vector<int> tangerine)
+vector<int> solution(vector<int> numbers)
 {
-    int answer = 0;
+    vector<int> answer(numbers.size(), -1);
+    int maxIndex = numbers.size() - 1;
 
-    // 크기에 따른 귤의 개수를 구한다.
-    unordered_map<int, int> counts;
-
-    for (int n : tangerine)
+    for (int i = numbers.size() - 2; i >= 0; --i)
     {
-        ++counts[n];
-    }
-
-    // 귤의 개수
-    vector<int> v;
-
-    v.reserve(counts.size());
-
-    for (auto iter = counts.begin(); iter != counts.end(); ++iter)
-    {
-        v.push_back(iter->second);
-    }
-
-    // 귤의 개수에 따라 내림차순으로 정렬한다.
-    sort(v.begin(), v.end(), [](int a, int b) { return a > b; });
-
-    // 내림차순으로 정렬된 벡터를 순회하며, 귤의 개수가 0개 이하가 될 때까지 귤을 담는다.
-    for (int n : v)
-    {
-        k -= n;
-        ++answer;
-
-        if (k <= 0)
+        if (numbers[i] >= numbers[maxIndex])
         {
-            break;
+            maxIndex = i;
+        }
+        else
+        {
+            // 현재 인덱스 바로 뒤부터 가장 큰 수(뒤에 큰 수가 없는 수)가 나올 때까지 순회하며 값을 찾는다.
+            for (int j = i + 1; j <= maxIndex; ++j)
+            {
+                // 현재 값보다 큰 값을 찾았다면 저장하고 빠져나간다.
+                if (numbers[j] > numbers[i])
+                {
+                    answer[i] = numbers[j];
+                    break;
+                }
+                else
+                {
+                    // 현재 값보다는 작거나 같을 경우에는, 현재 값과 결과 값을 비교한다.
+                    // 만약, 현재 값이 더 작다면 더이상 순회할 필요 없이 저장하고 빠져나간다.
+                    if (numbers[i] < answer[j])
+                    {
+                        answer[i] = answer[j];
+                        break;
+                    }
+                }
+            }
         }
     }
 
