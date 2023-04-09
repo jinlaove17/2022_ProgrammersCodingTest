@@ -2,41 +2,70 @@
 
 using namespace std;
 
-vector<int> solution(vector<int> numbers)
+enum class STATE
 {
-    vector<int> answer(numbers.size(), -1);
-    int maxIndex = numbers.size() - 1;
+    ZERO,
+    ONE,
+    MIXED
+};
 
-    for (int i = numbers.size() - 2; i >= 0; --i)
+STATE CheckState(const vector<vector<int>>& arr, int size, int row, int col);
+void Compress(vector<int>& answer, const vector<vector<int>>& arr, int size, int row, int col);
+
+vector<int> solution(vector<vector<int>> arr)
+{
+    vector<int> answer(2);
+
+    Compress(answer, arr, arr.size(), 0, 0);
+
+    return answer;
+}
+
+STATE CheckState(const vector<vector<int>>& arr, int size, int row, int col)
+{
+    int startValue = arr[row][col];
+
+    for (int i = row; i < row + size; ++i)
     {
-        if (numbers[i] >= numbers[maxIndex])
+        for (int j = col; j < col + size; ++j)
         {
-            maxIndex = i;
-        }
-        else
-        {
-            // 현재 인덱스 바로 뒤부터 가장 큰 수(뒤에 큰 수가 없는 수)가 나올 때까지 순회하며 값을 찾는다.
-            for (int j = i + 1; j <= maxIndex; ++j)
+            if (arr[i][j] != startValue)
             {
-                // 현재 값보다 큰 값을 찾았다면 저장하고 빠져나간다.
-                if (numbers[j] > numbers[i])
-                {
-                    answer[i] = numbers[j];
-                    break;
-                }
-                else
-                {
-                    // 현재 값보다는 작거나 같을 경우에는, 현재 값과 결과 값을 비교한다.
-                    // 만약, 현재 값이 더 작다면 더이상 순회할 필요 없이 저장하고 빠져나간다.
-                    if (numbers[i] < answer[j])
-                    {
-                        answer[i] = answer[j];
-                        break;
-                    }
-                }
+                return STATE::MIXED;
             }
         }
     }
 
-    return answer;
+    switch (startValue)
+    {
+    case 0:
+        return STATE::ZERO;
+    case 1:
+        return STATE::ONE;
+    }
+
+    return STATE::MIXED;
+}
+
+void Compress(vector<int>& answer, const vector<vector<int>>& arr, int size, int row, int col)
+{
+    switch (CheckState(arr, size, row, col))
+    {
+    case STATE::ZERO:
+        ++answer[0];
+        return;
+    case STATE::ONE:
+        ++answer[1];
+        return;
+    }
+
+    int halfSize = size / 2;
+
+    if (halfSize > 0)
+    {
+        Compress(answer, arr, halfSize, row, col);
+        Compress(answer, arr, halfSize, row + halfSize, col);
+        Compress(answer, arr, halfSize, row, col + halfSize);
+        Compress(answer, arr, halfSize, row + halfSize, col + halfSize);
+    }
 }
