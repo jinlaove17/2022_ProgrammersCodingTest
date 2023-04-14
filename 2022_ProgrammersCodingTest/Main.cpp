@@ -1,105 +1,59 @@
+#include <string>
 #include <vector>
+#include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 
-void Rotate(vector<vector<int>>& board, int x1, int y1, int x2, int y2, int x, int y, int& minValue);
+unordered_map<string, int> counts;
+int maxCounts[11]; // index: length
 
-vector<int> solution(int rows, int columns, vector<vector<int>> queries)
+void DFS(const vector<int>& course, const string& s, string current, int idx);
+
+vector<string> solution(vector<string> orders, vector<int> course)
 {
-    vector<int> answer;
-    vector<vector<int>> board(rows + 1, vector<int>(columns + 1));
-    int num = 1;
+    vector<string> answer;
 
-    for (int r = 1; r <= rows; ++r)
+    // 주문한 메뉴목록 또한 오름차순으로 정렬시킨다.
+    for (int i = 0; i < orders.size(); ++i)
     {
-        for (int c = 1; c <= columns; ++c)
+        sort(orders[i].begin(), orders[i].end());
+    }
+
+    // 모든 주문을 순회하며, 만들 수 있는 2글자 이상의 조합의 개수를 구한다.
+    for (int i = 0; i < orders.size(); ++i)
+    {
+        for (int j = 0; j < orders[i].size(); ++j)
         {
-            board[r][c] = num++;
+            DFS(course, orders[i], string(1, orders[i][j]), j);
         }
     }
 
-    for (const auto& query : queries)
+    // 구한 개수가 최대 개수와 같다면 answer에 추가한다.
+    // 이때, 최소 2명 이상의 손님으로부터 주문된 단품메뉴 조합에 대해서만 코스요리 메뉴 후보에 포함한다.
+    for (auto iter = counts.begin(); iter != counts.end(); ++iter)
     {
-        int x1 = query[0], y1 = query[1], x2 = query[2], y2 = query[3];
-        int temp = board[x1 + 1][y1];
-        int minValue = temp;
-
-        Rotate(board, x1, y1, x2, y2, x1, y1 + 1, minValue);
-        board[x1][y1] = temp;
-
-        answer.push_back(minValue);
+        if ((iter->second >= 2) && (iter->second == maxCounts[iter->first.length()]))
+        {
+            answer.push_back(iter->first);
+        }
     }
+
+    // 오름차순으로 정렬한다.
+    sort(answer.begin(), answer.end());
 
     return answer;
 }
 
-void Rotate(vector<vector<int>>& board, int x1, int y1, int x2, int y2, int x, int y, int& minValue)
+void DFS(const vector<int>& course, const string& s, string current, int idx)
 {
-    if (x == x1 && y == y1)
+    if (find(course.begin(), course.end(), current.length()) != course.end())
     {
-        return;
+        maxCounts[current.length()] = max(maxCounts[current.length()], ++counts[current]);
     }
 
-    int temp = 0;
-
-    if (x == x1)
+    for (int i = idx + 1; i < s.length(); ++i)
     {
-        temp = board[x][y - 1];
-
-        if (y < y2)
-        {
-            Rotate(board, x1, y1, x2, y2, x, y + 1, minValue);
-        }
-        else
-        {
-            Rotate(board, x1, y1, x2, y2, x + 1, y, minValue);
-        }
-
-        board[x][y] = temp;
-        minValue = min(minValue, temp);
-    }
-    else if (y == y2)
-    {
-        temp = board[x - 1][y];
-
-        if (x < x2)
-        {
-            Rotate(board, x1, y1, x2, y2, x + 1, y, minValue);
-        }
-        else
-        {
-            Rotate(board, x1, y1, x2, y2, x, y - 1, minValue);
-        }
-
-        board[x][y] = temp;
-        minValue = min(minValue, temp);
-    }
-    else if (x == x2)
-    {
-        temp = board[x][y + 1];
-
-        if (y > y1)
-        {
-            Rotate(board, x1, y1, x2, y2, x, y - 1, minValue);
-        }
-        else
-        {
-            Rotate(board, x1, y1, x2, y2, x - 1, y, minValue);
-        }
-
-        board[x][y] = temp;
-        minValue = min(minValue, temp);
-    }
-    else if (y == y1)
-    {
-        temp = board[x + 1][y];
-
-        if (x > x1)
-        {
-            Rotate(board, x1, y1, x2, y2, x - 1, y, minValue);
-        }
-
-        board[x][y] = temp;
-        minValue = min(minValue, temp);
+        DFS(course, s, current + s[i], i);
     }
 }
