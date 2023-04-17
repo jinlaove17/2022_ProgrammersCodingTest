@@ -3,60 +3,81 @@
 
 using namespace std;
 
-string solution(string m, vector<string> musicinfos)
+string ToBinary(int n);
+
+vector<string> solution(int n, vector<int> arr1, vector<int> arr2)
 {
-    string answer = "(None)";
-    int maxElapsedTime = 0;
+    vector<string> answer;
 
-    for (const auto& musicinfo : musicinfos)
+    for (int i = 0; i < n; ++i)
     {
-        int startMin = 60 * stoi(musicinfo.substr(0, 2)) + stoi(musicinfo.substr(3, 2));
-        int endMin = 60 * stoi(musicinfo.substr(6, 2)) + stoi(musicinfo.substr(9, 2));
-        int elapsedTime = endMin - startMin;
+        string map;
+        string s1 = ToBinary(arr1[i]);
+        string s2 = ToBinary(arr2[i]);
 
-        string title, melody;
-
-        for (int i = 12; i < musicinfo.length(); ++i)
+        while (!s1.empty() && !s2.empty())
         {
-            if (musicinfo[i] == ',')
+            if (s1.back() == '1' || s2.back() == '1')
             {
-                title = musicinfo.substr(12, i - 12);
-                melody = musicinfo.substr(i + 1);
-                break;
+                map = '#' + map;
             }
-        }
-
-        string totalMelody;
-
-        for (int i = 0, j = 0; i < elapsedTime; ++i)
-        {
-            totalMelody.push_back(melody[j]);
-            j = (j + 1) % melody.length();
-
-            if (melody[j] == '#')
+            else
             {
-                totalMelody.push_back('#');
-                j = (j + 1) % melody.length();
-            }
-        }
-
-        int pos = 0;
-
-        while ((pos = totalMelody.find(m, pos)) != string::npos)
-        {
-            if (totalMelody[(pos + m.length()) % totalMelody.length()] != '#')
-            {
-                if (elapsedTime > maxElapsedTime)
-                {
-                    maxElapsedTime = elapsedTime;
-                    answer = title;
-                    break;
-                }
+                map = ' ' + map;
             }
 
-            ++pos;
+            s1.pop_back();
+            s2.pop_back();
         }
+
+        while (!s1.empty())
+        {
+            if (s1.back() == '1')
+            {
+                map = '#' + map;
+            }
+            else
+            {
+                map = ' ' + map;
+            }
+
+            s1.pop_back();
+        }
+
+        while (!s2.empty())
+        {
+            if (s2.back() == '1')
+            {
+                map = '#' + map;
+            }
+            else
+            {
+                map = ' ' + map;
+            }
+
+            s2.pop_back();
+        }
+
+        while (map.length() < n)
+        {
+            map = ' ' + map;
+        }
+
+        answer.push_back(map);
     }
 
     return answer;
+}
+
+string ToBinary(int n)
+{
+    string s;
+
+    while (n > 0)
+    {
+        s = to_string(n % 2) + s;
+        n /= 2;
+    }
+
+    return s;
 }
