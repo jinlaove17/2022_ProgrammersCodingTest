@@ -2,23 +2,19 @@
 
 using namespace std;
 
-int solution(string s)
+int solution(string t, string p)
 {
     int answer = 0;
+    int len = t.length() - p.length();
+    long n = stol(p);
 
-    string numbers[10] = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
-
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i <= len; ++i)
     {
-        int pos = 0;
-
-        while ((pos = s.find(numbers[i], pos)) != string::npos)
+        if (stol(t.substr(i, p.length())) <= n)
         {
-            s.replace(pos, numbers[i].length(), to_string(i));
+            ++answer;
         }
     }
-
-    answer = stoi(s);
 
     return answer;
 }
