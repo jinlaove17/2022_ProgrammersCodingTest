@@ -1,19 +1,11 @@
-#include <string>
-
-using namespace std;
-
-int solution(string t, string p)
+int solution(int a, int b, int n)
 {
     int answer = 0;
-    int len = t.length() - p.length();
-    long n = stol(p);
 
-    for (int i = 0; i <= len; ++i)
+    while (n >= a)
     {
-        if (stol(t.substr(i, p.length())) <= n)
-        {
-            ++answer;
-        }
+        answer += b * (n / a);
+        n = b * (n / a) + (n % a);
     }
 
     return answer;
