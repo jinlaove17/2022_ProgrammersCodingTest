@@ -1,19 +1,25 @@
-#include <string>
 #include <vector>
+#include <string>
+#include <unordered_map>
 
 using namespace std;
 
-string solution(vector<int> food)
+vector<int> solution(string s)
 {
-    string answer = "0";
+    vector<int> answer;
+    unordered_map<char, int> um;
 
-    for (int i = food.size() - 1; i >= 0; --i)
+    for (int i = 0; i < s.length(); ++i)
     {
-        int cnt = food[i] / 2;
-
-        for (int j = 0; j < cnt; ++j)
+        if (um.find(s[i]) == um.end())
         {
-            answer = static_cast<char>(i + '0') + answer + static_cast<char>(i + '0');
+            um[s[i]] = i;
+            answer.push_back(-1);
+        }
+        else
+        {
+            answer.push_back(i - um[s[i]]);
+            um[s[i]] = i;
         }
     }
 
