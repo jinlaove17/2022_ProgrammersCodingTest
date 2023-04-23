@@ -1,76 +1,28 @@
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-char prioritys[6][3] =
+vector<int> solution(vector<string> name, vector<int> yearning, vector<vector<string>> photo)
 {
-    { '+', '-', '*' },
-    { '+', '*', '-' },
-    { '-', '*', '+' },
-    { '-', '+', '*' },
-    { '*', '+', '-' },
-    { '*', '-', '+' }
-};
+    vector<int> answer;
 
-long long solution(string expression)
-{
-    long long answer = 0;
-    vector<long long> operands;
-    vector<char> operators;
-    string str;
-
-    for (char c : expression)
+    for (int i = 0; i < photo.size(); ++i)
     {
-        if (('0' <= c) && (c <= '9'))
-        {
-            str.push_back(c);
-        }
-        else
-        {
-            operators.push_back(c);
-            operands.push_back(stoll(str));
-            str.clear();
-        }
-    }
+        int score = 0;
 
-    operands.push_back(stoll(str));
-
-    for (int i = 0; i < 6; ++i)
-    {
-        vector<long long> tempOperands(operands);
-        vector<char> tempOperators(operators);
-
-        for (int j = 0; j < 3; ++j)
+        for (const auto& str : photo[i])
         {
-            for (int k = 0; k < tempOperators.size(); )
+            auto iter = find(name.begin(), name.end(), str);
+
+            if (iter != name.end())
             {
-                if (tempOperators[k] == prioritys[i][j])
-                {
-                    switch (tempOperators[k])
-                    {
-                    case '+':
-                        tempOperands[k] = tempOperands[k] + tempOperands[k + 1];
-                        break;
-                    case '-':
-                        tempOperands[k] = tempOperands[k] - tempOperands[k + 1];
-                        break;
-                    case '*':
-                        tempOperands[k] = tempOperands[k] * tempOperands[k + 1];
-                        break;
-                    }
-
-                    tempOperands.erase(tempOperands.begin() + k + 1);
-                    tempOperators.erase(tempOperators.begin() + k);
-                }
-                else
-                {
-                    ++k;
-                }
+                score += yearning[iter - name.begin()];
             }
         }
 
-        answer = max(answer, abs(tempOperands[0]));
+        answer.push_back(score);
     }
 
     return answer;
