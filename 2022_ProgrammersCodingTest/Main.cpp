@@ -1,66 +1,60 @@
-#include <string>
 #include <vector>
-#include <queue>
-#include <utility>
-#include <algorithm>
+#include <string>
 
 using namespace std;
 
-vector<int> solution(vector<string> maps)
+vector<int> solution(vector<vector<string>> places)
 {
     vector<int> answer;
-    int dirX[] = { 0, 0, -1, 1 };
-    int dirY[] = { 1, -1, 0, 0 };
 
-    for (int y = 0; y < maps.size(); ++y)
+    for (const auto& place : places)
     {
-        for (int x = 0; x < maps[y].length(); ++x)
+        int possible = 1;
+
+        for (int y = 0; y < 5; ++y)
         {
-            if (('0' <= maps[y][x]) && (maps[y][x] <= '9'))
+            for (int x = 0; x < 5; ++x)
             {
-                int total = 0;
-                queue<pair<int, int>> q;
-
-                q.push({ x, y });
-                total = maps[y][x] - '0';
-                maps[y][x] = 'X';
-
-                while (!q.empty())
+                if (place[y][x] == 'P')
                 {
-                    pair<int, int> current = q.front();
-                    int cx = current.first;
-                    int cy = current.second;
-
-                    q.pop();
-
-                    for (int i = 0; i < 4; ++i)
+                    // 1. 현재 개발자의 위치에서 상, 하, 좌, 우 맨해튼 거리 내에 다른 개발자가 앉아 있는지 검사한다.
+                    if (((y - 1 >= 0) && (place[y - 1][x] == 'P')) ||
+                        ((y + 1 < 5) && (place[y + 1][x] == 'P')) ||
+                        ((x - 1 >= 0) && (place[y][x - 1] == 'P')) ||
+                        ((x + 1 < 5) && (place[y][x + 1] == 'P')))
                     {
-                        int nx = cx + dirX[i];
-                        int ny = cy + dirY[i];
+                        possible = 0;
+                        break;
+                    }
 
-                        if ((0 <= ny) && (ny < maps.size()) &&
-                            (0 <= nx) && (nx < maps[ny].length()) &&
-                            ('0' <= maps[ny][nx]) && (maps[ny][nx] <= '9'))
-                        {
-                            q.push({ nx, ny });
-                            total += maps[ny][nx] - '0';
-                            maps[ny][nx] = 'X';
-                        }
+                    if (((y - 2 >= 0) && (place[y - 2][x] == 'P') && (place[y - 1][x] != 'X')) ||
+                        ((y + 2 < 5) && (place[y + 2][x] == 'P') && (place[y + 1][x] != 'X')) ||
+                        ((x - 2 >= 0) && (place[y][x - 2] == 'P') && (place[y][x - 1] != 'X')) ||
+                        ((x + 2 < 5) && (place[y][x + 2] == 'P') && (place[y][x + 1] != 'X')))
+                    {
+                        possible = 0;
+                        break;
+                    }
+
+                    // 2. 현재 개발자의 위치에서 대각선 맨해튼 거리 내에 다른 개발자가 앉아 있는지 검사한다.
+                    if (((y - 1 >= 0) && (x - 1 >= 0) && (place[y - 1][x - 1] == 'P') && ((place[y - 1][x] != 'X') || (place[y][x - 1] != 'X'))) ||
+                        ((y - 1 >= 0) && (x + 1 < 5) && (place[y - 1][x + 1] == 'P') && ((place[y - 1][x] != 'X') || (place[y][x + 1] != 'X'))) ||
+                        ((y + 1 < 5) && (x - 1 >= 0) && (place[y + 1][x - 1] == 'P') && ((place[y + 1][x] != 'X') || (place[y][x - 1] != 'X'))) ||
+                        ((y + 1 < 5) && (x + 1 < 5) && (place[y + 1][x + 1] == 'P') && ((place[y + 1][x] != 'X') || (place[y][x + 1] != 'X'))))
+                    {
+                        possible = 0;
+                        break;
                     }
                 }
+            }
 
-                answer.push_back(total);
+            if (possible == 0)
+            {
+                break;
             }
         }
-    }
 
-    if (answer.empty())
-    {
-        answer.push_back(-1);
-    }
-    else
-    {
-        sort(answer.begin(), answer.end());
+        answer.push_back(possible);
     }
 
     return answer;
