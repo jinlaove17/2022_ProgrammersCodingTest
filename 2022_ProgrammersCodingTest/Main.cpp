@@ -1,61 +1,32 @@
-#include <vector>
-#include <string>
-
 using namespace std;
 
-vector<int> solution(vector<vector<string>> places)
+int GetGCD(int a, int b);
+
+long long solution(int w, int h)
 {
-    vector<int> answer;
+    long long answer = 1;
 
-    for (const auto& place : places)
-    {
-        int possible = 1;
+    // w와 h의 최대공약수를 알면, 최소 직사각형을 구할 수 있다.
+    int gcd = GetGCD(w, h);
+    int minWidth = w / gcd, minHeight = h / gcd;
 
-        for (int y = 0; y < 5; ++y)
-        {
-            for (int x = 0; x < 5; ++x)
-            {
-                if (place[y][x] == 'P')
-                {
-                    // 1. 현재 개발자의 위치에서 상, 하, 좌, 우 맨해튼 거리 내에 다른 개발자가 앉아 있는지 검사한다.
-                    if (((y - 1 >= 0) && (place[y - 1][x] == 'P')) ||
-                        ((y + 1 < 5) && (place[y + 1][x] == 'P')) ||
-                        ((x - 1 >= 0) && (place[y][x - 1] == 'P')) ||
-                        ((x + 1 < 5) && (place[y][x + 1] == 'P')))
-                    {
-                        possible = 0;
-                        break;
-                    }
-
-                    if (((y - 2 >= 0) && (place[y - 2][x] == 'P') && (place[y - 1][x] != 'X')) ||
-                        ((y + 2 < 5) && (place[y + 2][x] == 'P') && (place[y + 1][x] != 'X')) ||
-                        ((x - 2 >= 0) && (place[y][x - 2] == 'P') && (place[y][x - 1] != 'X')) ||
-                        ((x + 2 < 5) && (place[y][x + 2] == 'P') && (place[y][x + 1] != 'X')))
-                    {
-                        possible = 0;
-                        break;
-                    }
-
-                    // 2. 현재 개발자의 위치에서 대각선 맨해튼 거리 내에 다른 개발자가 앉아 있는지 검사한다.
-                    if (((y - 1 >= 0) && (x - 1 >= 0) && (place[y - 1][x - 1] == 'P') && ((place[y - 1][x] != 'X') || (place[y][x - 1] != 'X'))) ||
-                        ((y - 1 >= 0) && (x + 1 < 5) && (place[y - 1][x + 1] == 'P') && ((place[y - 1][x] != 'X') || (place[y][x + 1] != 'X'))) ||
-                        ((y + 1 < 5) && (x - 1 >= 0) && (place[y + 1][x - 1] == 'P') && ((place[y + 1][x] != 'X') || (place[y][x - 1] != 'X'))) ||
-                        ((y + 1 < 5) && (x + 1 < 5) && (place[y + 1][x + 1] == 'P') && ((place[y + 1][x] != 'X') || (place[y][x + 1] != 'X'))))
-                    {
-                        possible = 0;
-                        break;
-                    }
-                }
-            }
-
-            if (possible == 0)
-            {
-                break;
-            }
-        }
-
-        answer.push_back(possible);
-    }
+    // 하얀 부분은 (minWidth - 1) + (minHeight - 1) + 1개씩 반복된다.
+    // 이 부분에 다시 gcd를 곱해 원래 크기를 만들어준다.
+    answer = static_cast<long long>(w) * static_cast<long long>(h) - (minWidth + minHeight - 1) * gcd;
 
     return answer;
+}
+
+int GetGCD(int a, int b)
+{
+    int c = 0;
+
+    while (b > 0)
+    {
+        c = a % b;
+        a = b;
+        b = c;
+    }
+
+    return a;
 }
