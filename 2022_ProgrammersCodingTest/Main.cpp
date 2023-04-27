@@ -1,32 +1,50 @@
+#include <string>
+#include <climits>
+
 using namespace std;
 
-int GetGCD(int a, int b);
-
-long long solution(int w, int h)
+int solution(string s)
 {
-    long long answer = 1;
+    int answer = INT_MAX;
 
-    // w와 h의 최대공약수를 알면, 최소 직사각형을 구할 수 있다.
-    int gcd = GetGCD(w, h);
-    int minWidth = w / gcd, minHeight = h / gcd;
-
-    // 하얀 부분은 (minWidth - 1) + (minHeight - 1) + 1개씩 반복된다.
-    // 이 부분에 다시 gcd를 곱해 원래 크기를 만들어준다.
-    answer = static_cast<long long>(w) * static_cast<long long>(h) - (minWidth + minHeight - 1) * gcd;
-
-    return answer;
-}
-
-int GetGCD(int a, int b)
-{
-    int c = 0;
-
-    while (b > 0)
+    for (int len = 1; len <= s.length(); ++len)
     {
-        c = a % b;
-        a = b;
-        b = c;
+        string str, last, temp;
+
+        temp = last = s.substr(0, len);
+
+        for (int i = len; i <= s.length(); i += len)
+        {
+            string current = s.substr(i, len);
+
+            if (current == last)
+            {
+                temp += last;
+            }
+            else
+            {
+                int cnt = temp.length() / len;
+
+                if (cnt > 1)
+                {
+                    str += to_string(cnt);
+                }
+
+                str += last;
+                temp = last = current;
+            }
+        }
+
+        int cnt = temp.length() / len;
+
+        if (cnt > 1)
+        {
+            str += to_string(cnt);
+        }
+
+        str += last;
+        answer = min(answer, static_cast<int>(str.length()));
     }
 
-    return a;
+    return answer;
 }
