@@ -1,49 +1,23 @@
-#include <string>
-#include <climits>
+#include <vector>
+#include <queue>
 
 using namespace std;
 
-int solution(string s)
+vector<int> solution(int k, vector<int> score)
 {
-    int answer = INT_MAX;
+    vector<int> answer;
+    priority_queue<int, vector<int>, greater<int>> q;
 
-    for (int len = 1; len <= s.length(); ++len)
+    for (int i = 0; i < score.size(); ++i)
     {
-        string str, last, temp;
+        q.push(score[i]);
 
-        temp = last = s.substr(0, len);
-
-        for (int i = len; i <= s.length(); i += len)
+        if (q.size() > k)
         {
-            string current = s.substr(i, len);
-
-            if (current == last)
-            {
-                temp += last;
-            }
-            else
-            {
-                int cnt = temp.length() / len;
-
-                if (cnt > 1)
-                {
-                    str += to_string(cnt);
-                }
-
-                str += last;
-                temp = last = current;
-            }
+            q.pop();
         }
 
-        int cnt = temp.length() / len;
-
-        if (cnt > 1)
-        {
-            str += to_string(cnt);
-        }
-
-        str += last;
-        answer = min(answer, static_cast<int>(str.length()));
+        answer.push_back(q.top());
     }
 
     return answer;
