@@ -1,23 +1,17 @@
 #include <vector>
-#include <queue>
+#include <algorithm>
 
 using namespace std;
 
-vector<int> solution(int k, vector<int> score)
+int solution(int k, int m, vector<int> score)
 {
-    vector<int> answer;
-    priority_queue<int, vector<int>, greater<int>> q;
+    int answer = 0;
 
-    for (int i = 0; i < score.size(); ++i)
+    sort(score.begin(), score.end());
+
+    for (int i = score.size(); i >= m; i -= m)
     {
-        q.push(score[i]);
-
-        if (q.size() > k)
-        {
-            q.pop();
-        }
-
-        answer.push_back(q.top());
+        answer += score[i - m] * m;
     }
 
     return answer;
