@@ -1,30 +1,28 @@
-#include <string>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
-string solution(vector<string> cards1, vector<string> cards2, vector<string> goal)
+int solution(int n, int m, vector<int> section)
 {
-    string answer = "Yes";
+    int answer = 0;
+    vector<int> wall(n + 1, 1);
 
-    reverse(cards1.begin(), cards1.end());
-    reverse(cards2.begin(), cards2.end());
-
-    for (const string& word : goal)
+    // 칠해야 할 벽의 부분은 0으로 초기화한다.
+    for (int i = 0; i < section.size(); ++i)
     {
-        if ((!cards1.empty()) && (cards1.back() == word))
+        wall[section[i]] = 0;
+    }
+
+    for (int i = 1; i <= n; ++i)
+    {
+        // 칠해야 할 벽의 부분이라면,
+        if (wall[i] == 0)
         {
-            cards1.pop_back();
-        }
-        else if ((!cards2.empty()) && (cards2.back() == word))
-        {
-            cards2.pop_back();
-        }
-        else
-        {
-            answer = "No";
-            break;
+            // 롤러의 길이만큼 벽을 오른쪽으로 칠한다.
+            i = i + m - 1;
+
+            // 페인트 칠 횟수를 1 증가시킨다.
+            ++answer;
         }
     }
 
