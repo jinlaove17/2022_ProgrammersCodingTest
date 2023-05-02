@@ -1,55 +1,126 @@
-#include <vector>
-#include <algorithm>
+#include <string>
 
 using namespace std;
 
-vector<int> solution(int N, vector<int> stages)
+int solution(string dartResult)
 {
-    vector<int> answer, cnt(N + 1);
+    int answer = 0;
+    string results[3] = {};
 
-    // 각 스테이지에 도달했으나 아직 클리어하지 못한 플레이어의 수를 구한다.
-    for (int stage : stages)
+    // 1. 다트의 총 결과를 각각의 결과로 분리시킨다.
+    for (int i = 0, j = 0; i < dartResult.length(); ++i)
     {
-        ++cnt[stage];
-    }
-
-    // <index, failRatio>
-    vector<pair<int, float>> v;
-    int totalPlayer = stages.size();
-
-    for (int i = 1; i <= N; ++i)
-    {
-        if (cnt[i] == 0)
+        switch (dartResult[i])
         {
-            v.emplace_back(i, 0.0f);
-        }
-        else
-        {
-            float failRatio = static_cast<float>(cnt[i]) / totalPlayer;
+        case 'S':
+        case 'D':
+        case 'T':
+            results[j].push_back(dartResult[i]);
 
-            v.emplace_back(i, failRatio);
-        }
-
-        // 총 플레이어의 수에서 현재 단계에 도달만한 플레이어 수만큼 뺀다.
-        totalPlayer -= cnt[i];
-    }
-
-    sort(v.begin(), v.end(),
-        [](const auto& p1, const auto& p2)
-        {
-            // 실패율이 같을 경우에는 스테이지를 기준으로 오름차순으로 정렬을 수행한다.
-            if (p1.second == p2.second)
+            if (i + 1 < dartResult.length())
             {
-                return p1.first < p2.first;
+                switch (dartResult[i + 1])
+                {
+                case '*':
+                case '#':
+                    results[j].push_back(dartResult[++i]);
+                    break;
+                }
+
+                ++j;
             }
+            break;
+        default:
+            results[j].push_back(dartResult[i]);
+            break;
+        }
+    }
 
-            // 실패율을 기준으로 내림차순으로 정렬을 수행한다.   
-            return p1.second > p2.second;
-        });
+    int scores[3] = {};
 
-    for (const auto& p : v)
+    // 2. 분리시킨 문자열을 기반으로 점수를 계산한다.
+    for (int i = 0; i < 3; ++i)
     {
-        answer.push_back(p.first);
+        for (int j = 0; j < results[i].length(); ++j)
+        {
+            if (results[i][j] == 'S')
+            {
+                scores[i] = stoi(results[i].substr(0, j));
+
+                if (j + 1 < results[i].length())
+                {
+                    switch (results[i][j + 1])
+                    {
+                    case '*':
+                        scores[i] *= 2;
+
+                        if (i >= 1)
+                        {
+                            scores[i - 1] *= 2;
+                        }
+                        break;
+                    case '#':
+                        scores[i] = -scores[i];
+                        break;
+                    }
+                }
+                break;
+            }
+            else if (results[i][j] == 'D')
+            {
+                scores[i] = stoi(results[i].substr(0, j));
+                scores[i] = scores[i] * scores[i];
+
+                if (j + 1 < results[i].length())
+                {
+                    switch (results[i][j + 1])
+                    {
+                    case '*':
+                        scores[i] *= 2;
+
+                        if (i >= 1)
+                        {
+                            scores[i - 1] *= 2;
+                        }
+                        break;
+                    case '#':
+                        scores[i] = -scores[i];
+                        break;
+                    }
+                }
+                break;
+            }
+            else if (results[i][j] == 'T')
+            {
+                scores[i] = stoi(results[i].substr(0, j));
+                scores[i] = scores[i] * scores[i] * scores[i];
+
+                if (j + 1 < results[i].length())
+                {
+                    switch (results[i][j + 1])
+                    {
+                    case '*':
+                        scores[i] *= 2;
+
+                        if (i >= 1)
+                        {
+                            scores[i - 1] *= 2;
+                        }
+                        break;
+                    case '#':
+                        scores[i] = -scores[i];
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    // 3. 각각의 점수를 합산하여 총 점수를 구한다.
+    for (int i = 0; i < 3; ++i)
+    {
+        answer += scores[i];
     }
 
     return answer;
