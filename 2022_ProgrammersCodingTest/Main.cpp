@@ -1,16 +1,44 @@
-#include <cmath>
-
-using namespace std;
-
-long long solution(int k, int d)
+int solution(int storey)
 {
-    long long answer = 0;
+    int answer = 0;
 
-    for (int x = 0; x <= d; x += k)
+    while (storey > 0)
     {
-        long long y = sqrt(static_cast<long long>(d) * d - static_cast<long long>(x) * x);
+        // 일의 자리수를 구한다.
+        int n = storey % 10;
 
-        answer += y / k + 1;
+        // 일의 자리수가 5보다 크다면, 10 - n만큼 마법의 돌을 사용한다.
+        // 즉, 일의 자리에서 올림한다.
+        // ex) 16 -> 20(+4)
+        if (n > 5)
+        {
+            answer += 10 - n;
+            storey += 10;
+        }
+        // 일의 자리수가 5보다 작거나 같다면, n만큼 마법의 돌을 사용한다.
+        // 즉, 일의 자리에서 버림한다.
+        // ex) 14 -> 10(-4)
+        else
+        {
+            answer += n;
+
+            // 이때, 일의 자리수가 5인 경우에는, 올림/버림 여부가 바로 앞의 자리 숫자에 따라 결정된다.
+            // 즉, 앞의 자리 숫자가 5이상 일 때는 올림, 그 외에는 버림을 해야 최소값을 도출할 수 있다.
+            // ex) 올림할 경우, 205 -> 210(+5) -> 200(-10) -> 0(-200) : 8회
+            // ex) 내림할 경우, 205 -> 200(-5) -> 0(-200) : 7회
+            if (n == 5)
+            {
+                int next = (storey / 10) % 10;
+
+                if (next >= 5)
+                {
+                    storey += 10;
+                }
+            }
+        }
+
+        // storey를 10으로 나누어 다음 자리수로 넘어간다.
+        storey /= 10;
     }
 
     return answer;
