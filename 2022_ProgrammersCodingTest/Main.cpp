@@ -1,44 +1,63 @@
-int solution(int storey)
+#include <string>
+#include <vector>
+#include <queue>
+#include <utility>
+#include <algorithm>
+
+using namespace std;
+
+struct compare
+{
+    bool operator ()(const pair<int, int>& a, const pair<int, int>& b)
+    {
+        // 종료 시각을 기준으로 내림차순으로 정렬한다.(top은 제일 종료 시각이 빠른 시간)
+        return a.second > b.second;
+    }
+};
+
+int solution(vector<vector<string>> book_time)
 {
     int answer = 0;
 
-    while (storey > 0)
-    {
-        // 일의 자리수를 구한다.
-        int n = storey % 10;
-
-        // 일의 자리수가 5보다 크다면, 10 - n만큼 마법의 돌을 사용한다.
-        // 즉, 일의 자리에서 올림한다.
-        // ex) 16 -> 20(+4)
-        if (n > 5)
+    // 시작 시각을 기준으로 오름차순으로 정렬한다.
+    sort(book_time.begin(), book_time.end(),
+        [](const auto& a, const auto& b)
         {
-            answer += 10 - n;
-            storey += 10;
+            return a[0] < b[0];
+        });
+
+    // 우선순위 큐(분 단위)
+    priority_queue<pair<int, int>, vector<pair<int, int>>, compare> pq;
+
+    // book_time을 순회하며, 우선순위 큐에 추가한다.
+    // 이때, 매번 큐의 사이즈를 체크하여 최대값을 갱신해준다.
+    for (const auto& v : book_time)
+    {
+        // 입실할 방의 시각
+        int inBeginMin = 60 * stoi(v[0].substr(0, 2)) + stoi(v[0].substr(3, 2));
+        int inEndMin = 60 * stoi(v[1].substr(0, 2)) + stoi(v[1].substr(3, 2));
+
+        // 큐가 비어있다면, 바로 추가한다.
+        if (pq.empty())
+        {
+            pq.emplace(inBeginMin, inEndMin);
         }
-        // 일의 자리수가 5보다 작거나 같다면, n만큼 마법의 돌을 사용한다.
-        // 즉, 일의 자리에서 버림한다.
-        // ex) 14 -> 10(-4)
         else
         {
-            answer += n;
+            // 입실한 방 중 가장 임박한 종료 시각(청소 시간 10분 포함)
+            int lastEndMin = pq.top().second + 10;
 
-            // 이때, 일의 자리수가 5인 경우에는, 올림/버림 여부가 바로 앞의 자리 숫자에 따라 결정된다.
-            // 즉, 앞의 자리 숫자가 5이상 일 때는 올림, 그 외에는 버림을 해야 최소값을 도출할 수 있다.
-            // ex) 올림할 경우, 205 -> 210(+5) -> 200(-10) -> 0(-200) : 8회
-            // ex) 내림할 경우, 205 -> 200(-5) -> 0(-200) : 7회
-            if (n == 5)
+            // 우선은 큐에 추가한다.
+            pq.emplace(inBeginMin, inEndMin);
+
+            // 입실한 방의 종료 시각이 더 빨랐다면, 큐에서 제거하여 이 방에 추가한 것으로 간주한다.
+            if (lastEndMin <= inBeginMin)
             {
-                int next = (storey / 10) % 10;
-
-                if (next >= 5)
-                {
-                    storey += 10;
-                }
+                pq.pop();
             }
         }
 
-        // storey를 10으로 나누어 다음 자리수로 넘어간다.
-        storey /= 10;
+        answer = max(answer, static_cast<int>(pq.size()));
     }
 
     return answer;
