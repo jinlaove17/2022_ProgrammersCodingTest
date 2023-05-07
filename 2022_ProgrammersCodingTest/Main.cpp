@@ -1,64 +1,86 @@
-#include <string>
 #include <vector>
-#include <queue>
-#include <utility>
-#include <algorithm>
 
 using namespace std;
 
-struct compare
-{
-    bool operator ()(const pair<int, int>& a, const pair<int, int>& b)
-    {
-        // 종료 시각을 기준으로 내림차순으로 정렬한다.(top은 제일 종료 시각이 빠른 시간)
-        return a.second > b.second;
-    }
-};
+int GetGCD(int a, int b);
 
-int solution(vector<vector<string>> book_time)
+int solution(vector<int> arrayA, vector<int> arrayB)
 {
     int answer = 0;
 
-    // 시작 시각을 기준으로 오름차순으로 정렬한다.
-    sort(book_time.begin(), book_time.end(),
-        [](const auto& a, const auto& b)
-        {
-            return a[0] < b[0];
-        });
-
-    // 우선순위 큐(분 단위)
-    priority_queue<pair<int, int>, vector<pair<int, int>>, compare> pq;
-
-    // book_time을 순회하며, 우선순위 큐에 추가한다.
-    // 이때, 매번 큐의 사이즈를 체크하여 최대값을 갱신해준다.
-    for (const auto& v : book_time)
+    // 두 배열의 크기는 항상 같으므로 만약 크기가 1이라면, 두 수 중 큰 값이 a값이 된다.
+    // 이때, 두 값이 같다면, 조건을 만족하는 a는 존재하지 않는다.
+    if (arrayA.size() == 1)
     {
-        // 입실할 방의 시각
-        int inBeginMin = 60 * stoi(v[0].substr(0, 2)) + stoi(v[0].substr(3, 2));
-        int inEndMin = 60 * stoi(v[1].substr(0, 2)) + stoi(v[1].substr(3, 2));
-
-        // 큐가 비어있다면, 바로 추가한다.
-        if (pq.empty())
+        if (arrayA[0] == arrayB[0])
         {
-            pq.emplace(inBeginMin, inEndMin);
+            return 0;
         }
         else
         {
-            // 입실한 방 중 가장 임박한 종료 시각(청소 시간 10분 포함)
-            int lastEndMin = pq.top().second + 10;
-
-            // 우선은 큐에 추가한다.
-            pq.emplace(inBeginMin, inEndMin);
-
-            // 입실한 방의 종료 시각이 더 빨랐다면, 큐에서 제거하여 이 방에 추가한 것으로 간주한다.
-            if (lastEndMin <= inBeginMin)
-            {
-                pq.pop();
-            }
+            return max(arrayA[0], arrayB[0]);
         }
+    }
 
-        answer = max(answer, static_cast<int>(pq.size()));
+    // arrayA의 최대 공약수를 구한다.
+    int gcdA = GetGCD(arrayA[0], arrayA[1]);
+
+    for (int i = 2; i < arrayA.size(); ++i)
+    {
+        gcdA = GetGCD(gcdA, arrayA[i]);
+    }
+
+    // arrayB의 최대 공약수를 구한다.
+    int gcdB = GetGCD(arrayB[0], arrayB[1]);
+
+    for (int i = 2; i < arrayB.size(); ++i)
+    {
+        gcdB = GetGCD(gcdB, arrayB[i]);
+    }
+
+    // gcdA와 gcdB가 모두 1이거나 같은 경우에는 조건을 만족하는 a가 존재하지 않는다.
+    if (((gcdA == 1) && (gcdB == 1)) || (gcdA == gcdB))
+    {
+        return 0;
+    }
+    // 하나라도 1이 아닌 경우에는 큰 값으로 나머지 배열을 나누어 a값이 될 수 있는지 검사한다.
+    else
+    {
+        if (gcdA > gcdB)
+        {
+            for (int i = 0; i < arrayB.size(); ++i)
+            {
+                if (arrayB[i] % gcdA == 0)
+                {
+                    return 0;
+                }
+            }
+
+            answer = gcdA;
+        }
+        else
+        {
+            for (int i = 0; i < arrayA.size(); ++i)
+            {
+                if (arrayA[i] % gcdB == 0)
+                {
+                    return 0;
+                }
+            }
+
+            answer = gcdB;
+        }
     }
 
     return answer;
+}
+
+int GetGCD(int a, int b)
+{
+    if (b == 0)
+    {
+        return a;
+    }
+
+    return GetGCD(b, a % b);
 }
