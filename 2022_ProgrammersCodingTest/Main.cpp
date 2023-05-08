@@ -1,86 +1,127 @@
+#include <string>
 #include <vector>
+#include <utility>
+#include <algorithm>
 
 using namespace std;
 
-int GetGCD(int a, int b);
-
-int solution(vector<int> arrayA, vector<int> arrayB)
+int solution(vector<int> picks, vector<string> minerals)
 {
     int answer = 0;
 
-    // 두 배열의 크기는 항상 같으므로 만약 크기가 1이라면, 두 수 중 큰 값이 a값이 된다.
-    // 이때, 두 값이 같다면, 조건을 만족하는 a는 존재하지 않는다.
-    if (arrayA.size() == 1)
+    // minerals를 5개씩 나누어, 시작 인덱스와 광물의 합산 가치를 구한다.
+    // diamond: +100, iron: +10, stone: +1
+    // <index, totalValue>
+    vector<pair<int, int>> values;
+    int totalPick = picks[0] + picks[1] + picks[2];
+
+    for (int i = 0; i < minerals.size(); i += 5)
     {
-        if (arrayA[0] == arrayB[0])
+        // 곡괭이의 총 개수를 넘어가지 않도록 섹션을 만들어야 한다.
+        if (values.size() == totalPick)
         {
-            return 0;
+            break;
+        }
+
+        int value = 0;
+
+        for (int j = i; j < i + 5; ++j)
+        {
+            // 인덱스를 벗어날 경우, 내부 반복문을 빠져나간다.
+            if (j >= minerals.size())
+            {
+                break;
+            }
+
+            if (minerals[j] == "diamond")
+            {
+                value += 100;
+            }
+            else if (minerals[j] == "iron")
+            {
+                value += 10;
+            }
+            else
+            {
+                value += 1;
+            }
+        }
+
+        // 시작 인덱스와, 합산 가치를 벡터에 추가한다.
+        values.push_back({ i, value });
+    }
+
+    // 합산 가치를 기준으로 내림차순 정렬한다.
+    sort(values.begin(), values.end(),
+        [](const auto& a, const auto& b)
+        {
+            return a.second > b.second;
+        });
+
+    // 각 섹션의 피로도를 계산한다.
+    for (int i = 0; i < values.size(); ++i)
+    {
+        int pickIdx = -1;
+
+        // 곡괭이는 피로도가 적게 올라가는 diamond -> iron -> stone 순으로 사용한다.
+        if (picks[0] > 0)
+        {
+            pickIdx = 0;
+        }
+        else if (picks[1] > 0)
+        {
+            pickIdx = 1;
         }
         else
         {
-            return max(arrayA[0], arrayB[0]);
+            pickIdx = 2;
         }
-    }
 
-    // arrayA의 최대 공약수를 구한다.
-    int gcdA = GetGCD(arrayA[0], arrayA[1]);
+        // 사용한 곡괭이의 개수를 감소시킨다.
+        --picks[pickIdx];
 
-    for (int i = 2; i < arrayA.size(); ++i)
-    {
-        gcdA = GetGCD(gcdA, arrayA[i]);
-    }
-
-    // arrayB의 최대 공약수를 구한다.
-    int gcdB = GetGCD(arrayB[0], arrayB[1]);
-
-    for (int i = 2; i < arrayB.size(); ++i)
-    {
-        gcdB = GetGCD(gcdB, arrayB[i]);
-    }
-
-    // gcdA와 gcdB가 모두 1이거나 같은 경우에는 조건을 만족하는 a가 존재하지 않는다.
-    if (((gcdA == 1) && (gcdB == 1)) || (gcdA == gcdB))
-    {
-        return 0;
-    }
-    // 하나라도 1이 아닌 경우에는 큰 값으로 나머지 배열을 나누어 a값이 될 수 있는지 검사한다.
-    else
-    {
-        if (gcdA > gcdB)
+        // 저장해둔 시작 인덱스부터 시작하여 5개를 캐는데 소모되는 피로도를 계산한다.
+        for (int j = values[i].first; j < values[i].first + 5; ++j)
         {
-            for (int i = 0; i < arrayB.size(); ++i)
+            if (j >= minerals.size())
             {
-                if (arrayB[i] % gcdA == 0)
-                {
-                    return 0;
-                }
+                break;
             }
 
-            answer = gcdA;
-        }
-        else
-        {
-            for (int i = 0; i < arrayA.size(); ++i)
+            if (minerals[j] == "diamond")
             {
-                if (arrayA[i] % gcdB == 0)
+                switch (pickIdx)
                 {
-                    return 0;
+                case 0:
+                    answer += 1;
+                    break;
+                case 1:
+                    answer += 5;
+                    break;
+                case 2:
+                    answer += 25;
+                    break;
                 }
             }
-
-            answer = gcdB;
+            else if (minerals[j] == "iron")
+            {
+                switch (pickIdx)
+                {
+                case 0:
+                case 1:
+                    answer += 1;
+                    break;
+                case 2:
+                    answer += 5;
+                    break;
+                }
+            }
+            else
+            {
+                answer += 1;
+            }
         }
     }
 
     return answer;
-}
-
-int GetGCD(int a, int b)
-{
-    if (b == 0)
-    {
-        return a;
-    }
-
-    return GetGCD(b, a % b);
 }
