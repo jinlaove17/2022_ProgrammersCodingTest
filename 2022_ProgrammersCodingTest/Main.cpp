@@ -1,127 +1,58 @@
 #include <string>
 #include <vector>
-#include <utility>
 #include <algorithm>
 
 using namespace std;
 
-int solution(vector<int> picks, vector<string> minerals)
+void FindGroup(const vector<int>& cards, vector<int>& group, int groupIndex, int n);
+
+int solution(vector<int> cards)
 {
     int answer = 0;
 
-    // minerals를 5개씩 나누어, 시작 인덱스와 광물의 합산 가치를 구한다.
-    // diamond: +100, iron: +10, stone: +1
-    // <index, totalValue>
-    vector<pair<int, int>> values;
-    int totalPick = picks[0] + picks[1] + picks[2];
+    // 각 상자가 어떤 그룹에 속하는지 저장하는 변수
+    vector<int> group(cards.size());
 
-    for (int i = 0; i < minerals.size(); i += 5)
+    // 그룹의 인덱스
+    int groupIndex = 0;
+
+    for (int i = 0; i < cards.size(); ++i)
     {
-        // 곡괭이의 총 개수를 넘어가지 않도록 섹션을 만들어야 한다.
-        if (values.size() == totalPick)
+        // 아직 그룹이 정해지지 않은 상자라면, 그룹을 찾는다.
+        if (group[cards[i] - 1] == 0)
         {
-            break;
+            // 여기에 들어올 경우, 매번 다른 그룹을 찾는 것이므로 그룹 인덱스를 증가시켜주어야 한다.
+            FindGroup(cards, group, ++groupIndex, cards[i] - 1);
         }
-
-        int value = 0;
-
-        for (int j = i; j < i + 5; ++j)
-        {
-            // 인덱스를 벗어날 경우, 내부 반복문을 빠져나간다.
-            if (j >= minerals.size())
-            {
-                break;
-            }
-
-            if (minerals[j] == "diamond")
-            {
-                value += 100;
-            }
-            else if (minerals[j] == "iron")
-            {
-                value += 10;
-            }
-            else
-            {
-                value += 1;
-            }
-        }
-
-        // 시작 인덱스와, 합산 가치를 벡터에 추가한다.
-        values.push_back({ i, value });
     }
 
-    // 합산 가치를 기준으로 내림차순 정렬한다.
-    sort(values.begin(), values.end(),
-        [](const auto& a, const auto& b)
-        {
-            return a.second > b.second;
-        });
+    vector<int> boxCnt(cards.size());
 
-    // 각 섹션의 피로도를 계산한다.
-    for (int i = 0; i < values.size(); ++i)
+    // 각 그룹의 상자 수를 구한다.
+    for (int i = 0; i < group.size(); ++i)
     {
-        int pickIdx = -1;
+        ++boxCnt[group[i] - 1];
+    }
 
-        // 곡괭이는 피로도가 적게 올라가는 diamond -> iron -> stone 순으로 사용한다.
-        if (picks[0] > 0)
-        {
-            pickIdx = 0;
-        }
-        else if (picks[1] > 0)
-        {
-            pickIdx = 1;
-        }
-        else
-        {
-            pickIdx = 2;
-        }
+    // 상자수를 내림차순으로 정렬한다.
+    sort(boxCnt.begin(), boxCnt.end(), greater<>());
 
-        // 사용한 곡괭이의 개수를 감소시킨다.
-        --picks[pickIdx];
-
-        // 저장해둔 시작 인덱스부터 시작하여 5개를 캐는데 소모되는 피로도를 계산한다.
-        for (int j = values[i].first; j < values[i].first + 5; ++j)
-        {
-            if (j >= minerals.size())
-            {
-                break;
-            }
-
-            if (minerals[j] == "diamond")
-            {
-                switch (pickIdx)
-                {
-                case 0:
-                    answer += 1;
-                    break;
-                case 1:
-                    answer += 5;
-                    break;
-                case 2:
-                    answer += 25;
-                    break;
-                }
-            }
-            else if (minerals[j] == "iron")
-            {
-                switch (pickIdx)
-                {
-                case 0:
-                case 1:
-                    answer += 1;
-                    break;
-                case 2:
-                    answer += 5;
-                    break;
-                }
-            }
-            else
-            {
-                answer += 1;
-            }
-        }
+    // 그룹이 2종류 이상일 때는 그룹별로 상자수를 곱해준다.
+    // 가장 많은 상자수가 모든 상자수보다 작으면 2종류 이상이라는 것을 알 수 있다.
+    if (boxCnt[0] < cards.size())
+    {
+        answer = boxCnt[0] * boxCnt[1];
     }
 
     return answer;
+}
+
+void FindGroup(const vector<int>& cards, vector<int>& group, int groupIndex, int n)
+{
+    group[n] = groupIndex;
+
+    if (group[cards[n] - 1] == 0)
+    {
+        FindGroup(cards, group, groupIndex, cards[n] - 1);
+    }
 }
