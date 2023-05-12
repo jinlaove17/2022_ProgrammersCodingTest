@@ -1,58 +1,117 @@
 #include <string>
 #include <vector>
-#include <algorithm>
+#include <queue>
 
 using namespace std;
 
-void FindGroup(const vector<int>& cards, vector<int>& group, int groupIndex, int n);
+struct Node
+{
+    int x;
+    int y;
 
-int solution(vector<int> cards)
+    int time;
+};
+
+int dirX[] = {  0, 0, -1, 1 };
+int dirY[] = { -1, 1,  0, 0 };
+
+int BFS(const vector<string>& maps, vector<vector<bool>>& isVisited, const pair<int, int>& begin, const pair<int, int>& end);
+
+int solution(vector<string> maps)
 {
     int answer = 0;
 
-    // 각 상자가 어떤 그룹에 속하는지 저장하는 변수
-    vector<int> group(cards.size());
+    vector<vector<bool>> isVisited(maps.size());
+    pair<int, int> begin, lever, end;
 
-    // 그룹의 인덱스
-    int groupIndex = 0;
-
-    for (int i = 0; i < cards.size(); ++i)
+    // 맵을 순회하며, 시작 지점, 레버, 도착 지점의 좌표를 저장한다.
+    for (int y = 0; y < maps.size(); ++y)
     {
-        // 아직 그룹이 정해지지 않은 상자라면, 그룹을 찾는다.
-        if (group[cards[i] - 1] == 0)
+        isVisited[y].resize(maps[y].size());
+
+        for (int x = 0; x < maps[y].size(); ++x)
         {
-            // 여기에 들어올 경우, 매번 다른 그룹을 찾는 것이므로 그룹 인덱스를 증가시켜주어야 한다.
-            FindGroup(cards, group, ++groupIndex, cards[i] - 1);
+            switch (maps[y][x])
+            {
+            case 'S':
+                begin.first = x;
+                begin.second = y;
+                break;
+            case 'L':
+                lever.first = x;
+                lever.second = y;
+                break;
+            case 'E':
+                end.first = x;
+                end.second = y;
+                break;
+            }
         }
     }
 
-    vector<int> boxCnt(cards.size());
+    // 시작 지점에서 레버까지의 시간을 계산한다.
+    int time = BFS(maps, isVisited, begin, lever);
 
-    // 각 그룹의 상자 수를 구한다.
-    for (int i = 0; i < group.size(); ++i)
+    if (time == -1)
     {
-        ++boxCnt[group[i] - 1];
+        return time;
     }
 
-    // 상자수를 내림차순으로 정렬한다.
-    sort(boxCnt.begin(), boxCnt.end(), greater<>());
+    // 탈출할 수 있었다면, answer에 시간을 기록해 놓는다.
+    answer = time;
 
-    // 그룹이 2종류 이상일 때는 그룹별로 상자수를 곱해준다.
-    // 가장 많은 상자수가 모든 상자수보다 작으면 2종류 이상이라는 것을 알 수 있다.
-    if (boxCnt[0] < cards.size())
+    // 방문 여부를 초기화 한다.
+    for (int y = 0; y < maps.size(); ++y)
     {
-        answer = boxCnt[0] * boxCnt[1];
+        isVisited[y].assign(maps[y].size(), false);
     }
+
+    // 기록한 시간에 레버에서 도착 지점까지의 시간을 더한다.
+    time = BFS(maps, isVisited, lever, end);
+
+    if (time == -1)
+    {
+        return time;
+    }
+
+    answer += time;
 
     return answer;
 }
 
-void FindGroup(const vector<int>& cards, vector<int>& group, int groupIndex, int n)
+int BFS(const vector<string>& maps, vector<vector<bool>>& isVisited, const pair<int, int>& begin, const pair<int, int>& end)
 {
-    group[n] = groupIndex;
+    queue<Node> q;
 
-    if (group[cards[n] - 1] == 0)
+    isVisited[begin.second][begin.first] = true;
+    q.push({ begin.first, begin.second, 0 });
+
+    while (!q.empty())
     {
-        FindGroup(cards, group, groupIndex, cards[n] - 1);
+        Node node = q.front();
+
+        q.pop();
+
+        if ((node.x == end.first) && (node.y == end.second))
+        {
+            return node.time;
+        }
+
+        for (int i = 0; i < 4; ++i)
+        {
+            int nx = node.x + dirX[i];
+            int ny = node.y + dirY[i];
+
+            // 벽이 아니라면 해당 격자를 큐에 추가한다.
+            if ((0 <= ny) && (ny < isVisited.size()) &&
+                (0 <= nx) && (nx < isVisited[ny].size()) &&
+                (!isVisited[ny][nx]) && (maps[ny][nx] != 'X'))
+            {
+                isVisited[ny][nx] = true;
+                q.push({ nx, ny, node.time + 1 });
+            }
+        }
     }
+
+    return -1;
 }
