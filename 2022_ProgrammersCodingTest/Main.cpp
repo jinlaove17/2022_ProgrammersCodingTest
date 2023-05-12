@@ -1,117 +1,40 @@
-#include <string>
 #include <vector>
-#include <queue>
+#include <algorithm>
 
 using namespace std;
 
-struct Node
-{
-    int x;
-    int y;
-
-    int time;
-};
-
-int dirX[] = {  0, 0, -1, 1 };
-int dirY[] = { -1, 1,  0, 0 };
-
-int BFS(const vector<string>& maps, vector<vector<bool>>& isVisited, const pair<int, int>& begin, const pair<int, int>& end);
-
-int solution(vector<string> maps)
+int solution(vector<vector<int>> data, int col, int row_begin, int row_end)
 {
     int answer = 0;
 
-    vector<vector<bool>> isVisited(maps.size());
-    pair<int, int> begin, lever, end;
-
-    // 맵을 순회하며, 시작 지점, 레버, 도착 지점의 좌표를 저장한다.
-    for (int y = 0; y < maps.size(); ++y)
-    {
-        isVisited[y].resize(maps[y].size());
-
-        for (int x = 0; x < maps[y].size(); ++x)
+    sort(data.begin(), data.end(),
+        [col](const auto& a, const auto& b)
         {
-            switch (maps[y][x])
+            // col 번째 컬럼이 같을 경우,
+            if (a[col - 1] == b[col - 1])
             {
-            case 'S':
-                begin.first = x;
-                begin.second = y;
-                break;
-            case 'L':
-                lever.first = x;
-                lever.second = y;
-                break;
-            case 'E':
-                end.first = x;
-                end.second = y;
-                break;
+                // 기본키인 첫 번째 컬럼의 값을 기준으로 내림차순 정렬한다.
+                return a[0] > b[0];
             }
+
+            // 그 외에는 col 번째 컬럼을 기준으로 오름차순 정렬한다.
+            return a[col - 1] < b[col - 1];
+        });
+
+    // si를 계산한다.
+    for (int i = row_begin - 1; i < row_end; ++i)
+    {
+        int si = 0;
+
+        for (int j = 0; j < data[i].size(); ++j)
+        {
+            si += data[i][j] % (i + 1);
         }
+
+        // XOR(^): 같으면 0, 다르면 1
+        // answer의 초기 값은 0이기 때문에, 어떤 수 n과 XOR 연산을 수행하더라도 결과 값은 오로지 n의 값에 의해서만 결정된다.
+        answer ^= si;
     }
-
-    // 시작 지점에서 레버까지의 시간을 계산한다.
-    int time = BFS(maps, isVisited, begin, lever);
-
-    if (time == -1)
-    {
-        return time;
-    }
-
-    // 탈출할 수 있었다면, answer에 시간을 기록해 놓는다.
-    answer = time;
-
-    // 방문 여부를 초기화 한다.
-    for (int y = 0; y < maps.size(); ++y)
-    {
-        isVisited[y].assign(maps[y].size(), false);
-    }
-
-    // 기록한 시간에 레버에서 도착 지점까지의 시간을 더한다.
-    time = BFS(maps, isVisited, lever, end);
-
-    if (time == -1)
-    {
-        return time;
-    }
-
-    answer += time;
 
     return answer;
-}
-
-int BFS(const vector<string>& maps, vector<vector<bool>>& isVisited, const pair<int, int>& begin, const pair<int, int>& end)
-{
-    queue<Node> q;
-
-    isVisited[begin.second][begin.first] = true;
-    q.push({ begin.first, begin.second, 0 });
-
-    while (!q.empty())
-    {
-        Node node = q.front();
-
-        q.pop();
-
-        if ((node.x == end.first) && (node.y == end.second))
-        {
-            return node.time;
-        }
-
-        for (int i = 0; i < 4; ++i)
-        {
-            int nx = node.x + dirX[i];
-            int ny = node.y + dirY[i];
-
-            // 벽이 아니라면 해당 격자를 큐에 추가한다.
-            if ((0 <= ny) && (ny < isVisited.size()) &&
-                (0 <= nx) && (nx < isVisited[ny].size()) &&
-                (!isVisited[ny][nx]) && (maps[ny][nx] != 'X'))
-            {
-                isVisited[ny][nx] = true;
-                q.push({ nx, ny, node.time + 1 });
-            }
-        }
-    }
-
-    return -1;
 }
