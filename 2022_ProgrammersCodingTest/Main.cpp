@@ -1,39 +1,38 @@
 #include <vector>
-#include <algorithm>
+#include <unordered_set>
+#include <cmath>
 
 using namespace std;
 
-int solution(vector<vector<int>> data, int col, int row_begin, int row_end)
+int solution(int number, int limit, int power)
 {
     int answer = 0;
 
-    sort(data.begin(), data.end(),
-        [col](const auto& a, const auto& b)
-        {
-            // col 번째 컬럼이 같을 경우,
-            if (a[col - 1] == b[col - 1])
-            {
-                // 기본키인 첫 번째 컬럼의 값을 기준으로 내림차순 정렬한다.
-                return a[0] > b[0];
-            }
-
-            // 그 외에는 col 번째 컬럼을 기준으로 오름차순 정렬한다.
-            return a[col - 1] < b[col - 1];
-        });
-
-    // si를 계산한다.
-    for (int i = row_begin - 1; i < row_end; ++i)
+    for (int i = 1; i <= number; ++i)
     {
-        int si = 0;
+        unordered_set<int> s;
+        int si = sqrt(i);
 
-        for (int j = 0; j < data[i].size(); ++j)
+        // ■ 효율적으로 약수 구하기
+        // - i의 제곱근까지만 반복하며 나누어 떨어지는 수를 구한다.
+        // - i를 나누어 떨어지는 수로, i를 나눈 값 또한 약수가 된다.
+        for (int j = 1; j <= si; ++j)
         {
-            si += data[i][j] % (i + 1);
+            if (i % j == 0)
+            {
+                s.emplace(j);
+                s.emplace(i / j);
+            }
         }
 
-        // XOR(^): 같으면 0, 다르면 1
-        // answer의 초기 값은 0이기 때문에, 어떤 수 n과 XOR 연산을 수행하더라도 결과 값은 오로지 n의 값에 의해서만 결정된다.
-        answer ^= si;
+        size_t cnt = s.size();
+
+        if (cnt > limit)
+        {
+            cnt = power;
+        }
+
+        answer += cnt;
     }
 
     return answer;
