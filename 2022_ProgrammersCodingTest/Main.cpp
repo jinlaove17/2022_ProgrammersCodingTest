@@ -1,39 +1,34 @@
 #include <vector>
-#include <unordered_set>
-#include <cmath>
+#include <unordered_map>
 
 using namespace std;
 
-int solution(int number, int limit, int power)
+vector<int> solution(vector<int> lottos, vector<int> win_nums)
 {
-    int answer = 0;
+    vector<int> answer;
 
-    for (int i = 1; i <= number; ++i)
+    unordered_map<int, int> cnt;
+
+    for (int n : lottos)
     {
-        unordered_set<int> s;
-        int si = sqrt(i);
-
-        // ■ 효율적으로 약수 구하기
-        // - i의 제곱근까지만 반복하며 나누어 떨어지는 수를 구한다.
-        // - i를 나누어 떨어지는 수로, i를 나눈 값 또한 약수가 된다.
-        for (int j = 1; j <= si; ++j)
-        {
-            if (i % j == 0)
-            {
-                s.emplace(j);
-                s.emplace(i / j);
-            }
-        }
-
-        size_t cnt = s.size();
-
-        if (cnt > limit)
-        {
-            cnt = power;
-        }
-
-        answer += cnt;
+        ++cnt[n];
     }
+
+    int winCnt = 0;
+
+    for (int n : win_nums)
+    {
+        if (cnt.find(n) != cnt.end())
+        {
+            ++winCnt;
+        }
+    }
+
+    // 0 또한 당첨된 번호라고 생각하여 최고 순위 번호를 구한다.
+    answer.push_back(((winCnt + cnt[0]) >= 1) ? 7 - (winCnt + cnt[0]) : 6);
+
+    // 당첨된 번호의 개수로만 번호를 구하여 최저 순위 번호를 구한다.
+    answer.push_back((winCnt >= 2) ? 7 - winCnt : 6);
 
     return answer;
 }
