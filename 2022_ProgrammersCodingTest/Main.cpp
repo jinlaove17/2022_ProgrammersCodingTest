@@ -1,79 +1,131 @@
+#include <string>
 #include <vector>
-#include <map>
+#include <unordered_set>
+#include <algorithm>
 
 using namespace std;
 
-int GetGCD(int a, int b);
-int GetLCM(int a, int b);
+void DFS(const vector<vector<string>>& relation, const vector<string>& partRelation, vector<string>& combinations, const string& indices, int index);
+bool CheckUniqueness(const vector<string>& partRelation);
+bool CheckMinimality(const string& standard, const string& str);
 
-long long solution(vector<int> weights)
+int solution(vector<vector<string>> relation)
 {
-    long long answer = 0;
+    int answer = 0;
 
-    // 각 몸무게별로 사람이 몇 명씩 있는지 구한다.
-    map<int, int> m;
+    // 유효성을 만족하는 부분 릴레이션 조합의 인덱스
+    vector<string> combinations;
 
-    for (int weight : weights)
+    for (int i = 0; i < relation[0].size(); ++i)
     {
-        ++m[weight];
-    }
+        // 하나의 속성으로만 구성된 부분 릴레이션을 만든다.
+        vector<string> partRelation;
 
-    for (auto iter1 = m.begin(); iter1 != m.end(); )
-    {
-        // 동일한 몸무게를 가진 사람이 여러명이라면, 동일 몸무게 간의 쌍의 개수를 구한다.  
-        for (int i = 0; i < iter1->second - 1; ++i)
+        for (int j = 0; j < relation.size(); ++j)
         {
-            for (int j = i + 1; j < iter1->second; ++j)
-            {
-                ++answer;
-            }
+            partRelation.push_back(relation[j][i]);
         }
 
-        for (auto iter2 = m.begin(); iter2 != m.end(); ++iter2)
+        DFS(relation, partRelation, combinations, to_string(i), i);
+    }
+
+    // 길이를 기준으로 오름차순 정렬한다.
+    // 만약, 길이가 같다면 각 문자를 기준으로 오름차순 정렬한다.
+    sort(combinations.begin(), combinations.end(),
+        [](const auto& a, const auto& b)
         {
-            // 동일한 몸무게에 대한 쌍의 개수는 위에서 구했으므로, 몸무게가 다를 경우에만 쌍의 개수를 구한다.
-            if (iter1->first != iter2->first)
+            if (a.length() == b.length())
             {
-                int lcm = GetLCM(iter1->first, iter2->first);
+                return a < b;
+            }
 
-                // map 컨테이너를 사용했기 때문에 항상 iter2->first가 iter1->first보다 크다는 것을 보장한다.
-                // 만약, 두 수의 최소 공배수가 iter2->first가 나왔다면, 1m 좌석은 없으므로 2m 좌석에 앉아야 한다.
-                if (lcm == iter2->first)
-                {
-                    lcm *= 2;
-                }
+            return a.length() < b.length();
+        });
 
-                // 최소 공배수를 두 수 중 작은 값으로 나누었을 때의 몫은 4(m)이하여야 한다.
-                if (lcm / iter1->first <= 4)
-                {
-                    answer += iter1->second * iter2->second;
-                }
+    // combinations의 모든 원소들을 비교하며, 기준이 되는 원소와 같은 문자의 개수가 기준이 되는 원소의 길이와 같다면 최소성을 만족하지 못하므로 컨테이너에서 삭제한다.
+    for (auto iter1 = combinations.begin(); iter1 != combinations.end(); ++iter1)
+    {
+        for (auto iter2 = iter1 + 1; iter2 != combinations.end(); )
+        {
+            if (CheckMinimality(*iter1, *iter2))
+            {
+                ++iter2;
+            }
+            else
+            {
+                iter2 = combinations.erase(iter2);
             }
         }
-
-        // 몸무게가 iter1->first인 사람들을 포함하는 쌍은 구했으므로, 중복되지 않도록 컨테이너에서 삭제시킨다.
-        // 사실상 밖의 for문은 원소를 삭제하며 순회하는 것과 같다.
-        iter1 = m.erase(iter1);
     }
+
+    // combinations에 남은 원소들이 유일성과 최소성을 만족하는 최종 후보키가 된다.
+    answer = combinations.size();
 
     return answer;
 }
 
-int GetGCD(int a, int b)
+void DFS(const vector<vector<string>>& relation, const vector<string>& partRelation, vector<string>& combinations, const string& indices, int index)
 {
-    int temp = 0;
-
-    while (b > 0)
+    // 유일성을 만족하는지 검사하고, 만족할 경우 combinations에 추가한다.
+    // 이후 이 릴레이션과의 조합은 최소성을 만족하지 못하므로 return한다.
+    if (CheckUniqueness(partRelation))
     {
-        temp = a % b;
-        a = b;
-        b = temp;
+        combinations.push_back(indices);
+        return;
     }
 
-    return a;
+    for (int i = index + 1; i < relation[0].size(); ++i)
+    {
+        vector<string> newPartRelation(partRelation);
+
+        // 기존의 부분 릴레이션(partRelation)에 새로운 속성을 더해 새로운 부분 릴레이션을 만든다.
+        for (int j = 0; j < relation.size(); ++j)
+        {
+            newPartRelation[j] += ' ' + relation[j][i];
+        }
+
+        DFS(relation, newPartRelation, combinations, indices + to_string(i), i);
+    }
 }
 
-int GetLCM(int a, int b)
+bool CheckUniqueness(const vector<string>& partRelation)
 {
-    return a * b / GetGCD(a, b);
+    bool isUniqueness = true;
+    unordered_set<string> s;
+
+    for (const string& str : partRelation)
+    {
+        if (s.find(str) == s.end())
+        {
+            s.insert(str);
+        }
+        else
+        {
+            isUniqueness = false;
+            break;
+        }
+    }
+
+    return isUniqueness;
+}
+
+bool CheckMinimality(const string& standard, const string& str)
+{
+    bool isMinimality = true;
+    int sameCnt = 0;
+
+    for (char c : standard)
+    {
+        if (str.find(c) != string::npos)
+        {
+            ++sameCnt;
+        }
+    }
+
+    if (standard.length() == sameCnt)
+    {
+        isMinimality = false;
+    }
+
+    return isMinimality;
 }
