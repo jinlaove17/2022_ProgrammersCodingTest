@@ -1,131 +1,71 @@
-#include <string>
 #include <vector>
-#include <unordered_set>
-#include <algorithm>
+#include <queue>
 
 using namespace std;
 
-void DFS(const vector<vector<string>>& relation, const vector<string>& partRelation, vector<string>& combinations, const string& indices, int index);
-bool CheckUniqueness(const vector<string>& partRelation);
-bool CheckMinimality(const string& standard, const string& str);
-
-int solution(vector<vector<string>> relation)
+int solution(int n, int k, vector<int> enemy)
 {
-    int answer = 0;
+    // 초기 값은 무적권의 개수이다.
+    int answer = k;
+    int round = enemy.size();
 
-    // 유효성을 만족하는 부분 릴레이션 조합의 인덱스
-    vector<string> combinations;
-
-    for (int i = 0; i < relation[0].size(); ++i)
+    // 사용할 수 있는 무적권의 수가 라운드 수와 크거나 같다면, 모든 라운드에 무적권을 사용하면 되므로 라운드 수를 반환한다.
+    if (k >= round)
     {
-        // 하나의 속성으로만 구성된 부분 릴레이션을 만든다.
-        vector<string> partRelation;
-
-        for (int j = 0; j < relation.size(); ++j)
-        {
-            partRelation.push_back(relation[j][i]);
-        }
-
-        DFS(relation, partRelation, combinations, to_string(i), i);
+        return round;
     }
 
-    // 길이를 기준으로 오름차순 정렬한다.
-    // 만약, 길이가 같다면 각 문자를 기준으로 오름차순 정렬한다.
-    sort(combinations.begin(), combinations.end(),
-        [](const auto& a, const auto& b)
-        {
-            if (a.length() == b.length())
-            {
-                return a < b;
-            }
+    // 최대한 많은 라운드를 막기 위해서는 무적권을 모두 사용해야 한다.
+    // 우선, 1라운드부터 k라운드까지 무적권을 사용하고, 이후 더 많은 수의 적이 있는 라운드가 있다면 무적권의 사용 라운드를 교체한다.
+    // 무적권을 사용한 라운드의 적의 수를 최소 힙에 저장해 놓는다.
+    priority_queue<int, vector<int>, greater<int>> q;
 
-            return a.length() < b.length();
-        });
-
-    // combinations의 모든 원소들을 비교하며, 기준이 되는 원소와 같은 문자의 개수가 기준이 되는 원소의 길이와 같다면 최소성을 만족하지 못하므로 컨테이너에서 삭제한다.
-    for (auto iter1 = combinations.begin(); iter1 != combinations.end(); ++iter1)
+    for (int i = 0; i < k; ++i)
     {
-        for (auto iter2 = iter1 + 1; iter2 != combinations.end(); )
+        q.push(enemy[i]);
+    }
+
+    // k + 1라운드부터 순회를 시작한다.
+    for (int i = k; i < round; ++i)
+    {
+        // 큐의 top은 무적권을 사용한 라운드 중 가장 적은 적의 수를 나타낸다.
+        int minEnemy = q.top();
+
+        // 현재 라운드의 적의 수와 minEnemy를 비교한다.
+        if (enemy[i] > minEnemy)
         {
-            if (CheckMinimality(*iter1, *iter2))
+            // 현재 라운드의 적의 수가 더 많기 때문에, 적의수가 minEnemy인 라운드는 무적권을 사용하지 않은 라운드가 되므로 병사의 수에서 빼준다.
+            int rest = n - minEnemy;
+
+            // 만약 해당 라운드에 무적권을 사용하지 않았을 때 병사의 수가 더 많을 경우에만, 무적권 사용 라운드를 교체할 수 있다.
+            if (rest >= 0)
             {
-                ++iter2;
+                q.pop();
+                q.push(enemy[i]);
+                answer = i + 1;
+                n = rest;
             }
             else
             {
-                iter2 = combinations.erase(iter2);
+                break;
+            }
+        }
+        // minEnemy보다 이번 라운드의 적의 수가 더 적다면, 무적권을 사용하지 않고 병사의 수로 막아낸다.
+        else
+        {
+            int rest = n - enemy[i];
+
+            if (rest >= 0)
+            {
+                ++answer;
+                n = rest;
+            }
+            else
+            {
+                break;
             }
         }
     }
 
-    // combinations에 남은 원소들이 유일성과 최소성을 만족하는 최종 후보키가 된다.
-    answer = combinations.size();
-
     return answer;
-}
-
-void DFS(const vector<vector<string>>& relation, const vector<string>& partRelation, vector<string>& combinations, const string& indices, int index)
-{
-    // 유일성을 만족하는지 검사하고, 만족할 경우 combinations에 추가한다.
-    // 이후 이 릴레이션과의 조합은 최소성을 만족하지 못하므로 return한다.
-    if (CheckUniqueness(partRelation))
-    {
-        combinations.push_back(indices);
-        return;
-    }
-
-    for (int i = index + 1; i < relation[0].size(); ++i)
-    {
-        vector<string> newPartRelation(partRelation);
-
-        // 기존의 부분 릴레이션(partRelation)에 새로운 속성을 더해 새로운 부분 릴레이션을 만든다.
-        for (int j = 0; j < relation.size(); ++j)
-        {
-            newPartRelation[j] += ' ' + relation[j][i];
-        }
-
-        DFS(relation, newPartRelation, combinations, indices + to_string(i), i);
-    }
-}
-
-bool CheckUniqueness(const vector<string>& partRelation)
-{
-    bool isUniqueness = true;
-    unordered_set<string> s;
-
-    for (const string& str : partRelation)
-    {
-        if (s.find(str) == s.end())
-        {
-            s.insert(str);
-        }
-        else
-        {
-            isUniqueness = false;
-            break;
-        }
-    }
-
-    return isUniqueness;
-}
-
-bool CheckMinimality(const string& standard, const string& str)
-{
-    bool isMinimality = true;
-    int sameCnt = 0;
-
-    for (char c : standard)
-    {
-        if (str.find(c) != string::npos)
-        {
-            ++sameCnt;
-        }
-    }
-
-    if (standard.length() == sameCnt)
-    {
-        isMinimality = false;
-    }
-
-    return isMinimality;
 }
