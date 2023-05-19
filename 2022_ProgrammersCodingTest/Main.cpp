@@ -1,69 +1,63 @@
 #include <vector>
-#include <queue>
 
 using namespace std;
 
-int solution(int n, int k, vector<int> enemy)
+vector<double> solution(int k, vector<vector<int>> ranges)
 {
-    // 초기 값은 무적권의 개수이다.
-    int answer = k;
-    int round = enemy.size();
+    vector<double> answer;
 
-    // 사용할 수 있는 무적권의 수가 라운드 수와 크거나 같다면, 모든 라운드에 무적권을 사용하면 되므로 라운드 수를 반환한다.
-    if (k >= round)
+    double sizes[200] = {};
+    int n = k;
+
+    // 우박수에 따른 구간별 넓이를 계산한다.
+    for (int i = 0; i < 200; ++i)
     {
-        return round;
-    }
+        int next = 0;
 
-    // 최대한 많은 라운드를 막기 위해서는 무적권을 모두 사용해야 한다.
-    // 우선, 1라운드부터 k라운드까지 무적권을 사용하고, 이후 더 많은 수의 적이 있는 라운드가 있다면 무적권의 사용 라운드를 교체한다.
-    // 무적권을 사용한 라운드의 적의 수를 최소 힙에 저장해 놓는다.
-    priority_queue<int, vector<int>, greater<int>> q;
-
-    for (int i = 0; i < k; ++i)
-    {
-        q.push(enemy[i]);
-    }
-
-    // k + 1라운드부터 순회를 시작한다.
-    for (int i = k; i < round; ++i)
-    {
-        // 큐의 top은 무적권을 사용한 라운드 중 가장 적은 적의 수를 나타낸다.
-        int minEnemy = q.top();
-
-        // 현재 라운드의 적의 수와 minEnemy를 비교한다.
-        if (enemy[i] > minEnemy)
+        // n이 짝수일 때,
+        if ((n & 1) == 0)
         {
-            // 현재 라운드의 적의 수가 더 많기 때문에, 적의수가 minEnemy인 라운드는 무적권을 사용하지 않은 라운드가 되므로 병사의 수에서 빼준다.
-            int rest = n - minEnemy;
-
-            // 만약 해당 라운드에 무적권을 사용하지 않았을 때 병사의 수가 더 많을 경우에만, 무적권 사용 라운드를 교체할 수 있다.
-            if (rest >= 0)
-            {
-                q.pop();
-                q.push(enemy[i]);
-                answer = i + 1;
-                n = rest;
-            }
-            else
-            {
-                break;
-            }
+            next = n / 2.0;
         }
-        // minEnemy보다 이번 라운드의 적의 수가 더 적다면, 무적권을 사용하지 않고 병사의 수로 막아낸다.
+        // n이 홀수일 때,
         else
         {
-            int rest = n - enemy[i];
+            next = 3 * n + 1;
+        }
 
-            if (rest >= 0)
-            {
-                ++answer;
-                n = rest;
-            }
-            else
-            {
-                break;
-            }
+        sizes[i] = (n + next) / 2.0;
+        n = next;
+
+        if (n == 1)
+        {
+            n = i;
+            break;
+        }
+    }
+
+    // 구간별 넓이의 누적합을 계산한다.
+    double accSizes[200] = {};
+
+    accSizes[n] = sizes[n];
+
+    for (int i = n - 1; i >= 0; --i)
+    {
+        accSizes[i] = accSizes[i + 1] + sizes[i];
+    }
+
+    // ranges의 구간별 넓이를 계산한다.
+    for (const auto& range : ranges)
+    {
+        int begin = range[0];
+        int end = (n + 1) + range[1];
+
+        if (begin <= end)
+        {
+            answer.push_back(accSizes[begin] - accSizes[end]);
+        }
+        else
+        {
+            answer.push_back(-1.0);
         }
     }
 
