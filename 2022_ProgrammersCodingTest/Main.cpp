@@ -1,65 +1,98 @@
+#include <string>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
-vector<double> solution(int k, vector<vector<int>> ranges)
+struct Node
 {
-    vector<double> answer;
+    int x;
+    int y;
 
-    double sizes[200] = {};
-    int n = k;
+    int dist;
+};
 
-    // 우박수에 따른 구간별 넓이를 계산한다.
-    for (int i = 0; i < 200; ++i)
+int BFS(const vector<string>& board, int sx, int sy, int ex, int ey);
+
+int solution(vector<string> board)
+{
+    int answer = 0;
+
+    // 로봇의 처음 위치(R)와 목표 지점(G)의 좌표를 구한다.
+    int sx = 0, sy = 0, ex = 0, ey = 0;
+
+    for (int y = 0; y < board.size(); ++y)
     {
-        int next = 0;
-
-        // n이 짝수일 때,
-        if ((n & 1) == 0)
+        for (int x = 0; x < board[0].size(); ++x)
         {
-            next = n / 2.0;
-        }
-        // n이 홀수일 때,
-        else
-        {
-            next = 3 * n + 1;
-        }
-
-        sizes[i] = (n + next) / 2.0;
-        n = next;
-
-        if (n == 1)
-        {
-            n = i;
-            break;
+            switch (board[y][x])
+            {
+            case 'R':
+                sx = x;
+                sy = y;
+                break;
+            case 'G':
+                ex = x;
+                ey = y;
+                break;
+            }
         }
     }
 
-    // 구간별 넓이의 누적합을 계산한다.
-    double accSizes[200] = {};
-
-    accSizes[n] = sizes[n];
-
-    for (int i = n - 1; i >= 0; --i)
-    {
-        accSizes[i] = accSizes[i + 1] + sizes[i];
-    }
-
-    // ranges의 구간별 넓이를 계산한다.
-    for (const auto& range : ranges)
-    {
-        int begin = range[0];
-        int end = (n + 1) + range[1];
-
-        if (begin <= end)
-        {
-            answer.push_back(accSizes[begin] - accSizes[end]);
-        }
-        else
-        {
-            answer.push_back(-1.0);
-        }
-    }
+    // 풀이를 간단히 하기 위해 맵(board)의 시작점과 도착점 또한 '.'으로 변경한다.
+    board[sy][sx] = board[ey][ex] = '.';
+    answer = BFS(board, sx, sy, ex, ey);
 
     return answer;
+}
+
+int BFS(const vector<string>& board, int sx, int sy, int ex, int ey)
+{
+    int maxRow = board.size();
+    int maxCol = board.front().size();
+    int dirX[] = { 0, 0, -1, 1 };
+    int dirY[] = { -1, 1, 0, 0 };
+
+    vector<vector<bool>> isVisited(maxRow, vector<bool>(maxCol));
+    queue<Node> q;
+
+    isVisited[sy][sx] = true;
+    q.push({ sx, sy, 0 });
+
+    while (!q.empty())
+    {
+        Node current = q.front();
+
+        q.pop();
+
+        // 목표 지점(G)에 도착했다면, 반복문을 빠져나간다.
+        if ((current.x == ex) && (current.y == ey))
+        {
+            return current.dist;
+        }
+
+        for (int i = 0; i < 4; ++i)
+        {
+            int nx = current.x;
+            int ny = current.y;
+
+            // 현재 위치(current.x, current.y)에서 장애물에 다다르거나 맵의 끝에 도달할 때까지 계속해서 (dirX[i], dirY[i])씩 이동한다.
+            while ((0 <= nx + dirX[i]) && (nx + dirX[i] < maxCol) &&
+                   (0 <= ny + dirY[i]) && (ny + dirY[i] < maxRow) &&
+                   (board[ny + dirY[i]][nx + dirX[i]] == '.'))
+            {
+                nx += dirX[i];
+                ny += dirY[i];
+            }
+
+            // 만약 해당 위치가 방문하지 않았던 위치라면, 큐에 추가한다.
+            if (!isVisited[ny][nx])
+            {
+                isVisited[ny][nx] = true;
+                q.push({ nx, ny, current.dist + 1 });
+            }
+        }
+    }
+
+    return -1;
 }
