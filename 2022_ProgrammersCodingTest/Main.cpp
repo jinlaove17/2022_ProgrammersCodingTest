@@ -1,98 +1,47 @@
 #include <string>
-#include <vector>
-#include <queue>
+#include <map>
 
 using namespace std;
 
-struct Node
+string solution(string X, string Y)
 {
-    int x;
-    int y;
+    string answer = "";
 
-    int dist;
-};
+    // 가장 큰 정수를 만들어야하므로, 문자를 기준으로 큰 수부터 접근할 수 있는 컨테이너인 map을 사용한다.
+    // map은 기본적으로 오름차순 정렬이므로, 템플릿의 3번째 인자로 greater<char>를 넣어주어 내림차순 정렬로 생성한다.
+    map<char, int, greater<char>> m1, m2;
 
-int BFS(const vector<string>& board, int sx, int sy, int ex, int ey);
-
-int solution(vector<string> board)
-{
-    int answer = 0;
-
-    // 로봇의 처음 위치(R)와 목표 지점(G)의 좌표를 구한다.
-    int sx = 0, sy = 0, ex = 0, ey = 0;
-
-    for (int y = 0; y < board.size(); ++y)
+    // 문자열 X에 있는 각 문자의 개수를 m1에 저장한다.
+    for (char c : X)
     {
-        for (int x = 0; x < board[0].size(); ++x)
+        ++m1[c];
+    }
+
+    // 문자열 Y에 있는 각 문자의 개수를 m2에 저장한다.
+    for (char c : Y)
+    {
+        ++m2[c];
+    }
+
+    // m1의 문자를 순회하며 m2에 있는지 검사하고, 있을 경우에는 더 적은 개수만큼 answer에 이어 붙인다.
+    for (const auto& p : m1)
+    {
+        if (m2.find(p.first) != m2.end())
         {
-            switch (board[y][x])
-            {
-            case 'R':
-                sx = x;
-                sy = y;
-                break;
-            case 'G':
-                ex = x;
-                ey = y;
-                break;
-            }
+            answer += string(min(p.second, m2[p.first]), p.first);
         }
     }
 
-    // 풀이를 간단히 하기 위해 맵(board)의 시작점과 도착점 또한 '.'으로 변경한다.
-    board[sy][sx] = board[ey][ex] = '.';
-    answer = BFS(board, sx, sy, ex, ey);
+    // 하나라도 같은 문자가 없었다면, answer에 "-1"을 대입한다.
+    if (answer.empty())
+    {
+        answer = "-1";
+    }
+    // 두 문자가 0을 여러개 가지는 경우가 있으므로, answer에 "0"을 대입한다.
+    else if (answer.front() == '0')
+    {
+        answer = "0";
+    }
 
     return answer;
-}
-
-int BFS(const vector<string>& board, int sx, int sy, int ex, int ey)
-{
-    int maxRow = board.size();
-    int maxCol = board.front().size();
-    int dirX[] = { 0, 0, -1, 1 };
-    int dirY[] = { -1, 1, 0, 0 };
-
-    vector<vector<bool>> isVisited(maxRow, vector<bool>(maxCol));
-    queue<Node> q;
-
-    isVisited[sy][sx] = true;
-    q.push({ sx, sy, 0 });
-
-    while (!q.empty())
-    {
-        Node current = q.front();
-
-        q.pop();
-
-        // 목표 지점(G)에 도착했다면, 반복문을 빠져나간다.
-        if ((current.x == ex) && (current.y == ey))
-        {
-            return current.dist;
-        }
-
-        for (int i = 0; i < 4; ++i)
-        {
-            int nx = current.x;
-            int ny = current.y;
-
-            // 현재 위치(current.x, current.y)에서 장애물에 다다르거나 맵의 끝에 도달할 때까지 계속해서 (dirX[i], dirY[i])씩 이동한다.
-            while ((0 <= nx + dirX[i]) && (nx + dirX[i] < maxCol) &&
-                   (0 <= ny + dirY[i]) && (ny + dirY[i] < maxRow) &&
-                   (board[ny + dirY[i]][nx + dirX[i]] == '.'))
-            {
-                nx += dirX[i];
-                ny += dirY[i];
-            }
-
-            // 만약 해당 위치가 방문하지 않았던 위치라면, 큐에 추가한다.
-            if (!isVisited[ny][nx])
-            {
-                isVisited[ny][nx] = true;
-                q.push({ nx, ny, current.dist + 1 });
-            }
-        }
-    }
-
-    return -1;
 }
