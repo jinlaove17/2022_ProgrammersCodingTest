@@ -1,47 +1,58 @@
 #include <string>
-#include <map>
+#include <vector>
 
 using namespace std;
 
-string solution(string X, string Y)
+bool CanPronounce(const string& word);
+
+int solution(vector<string> babbling)
 {
-    string answer = "";
+    int answer = 0;
 
-    // 가장 큰 정수를 만들어야하므로, 문자를 기준으로 큰 수부터 접근할 수 있는 컨테이너인 map을 사용한다.
-    // map은 기본적으로 오름차순 정렬이므로, 템플릿의 3번째 인자로 greater<char>를 넣어주어 내림차순 정렬로 생성한다.
-    map<char, int, greater<char>> m1, m2;
-
-    // 문자열 X에 있는 각 문자의 개수를 m1에 저장한다.
-    for (char c : X)
+    for (const auto& word : babbling)
     {
-        ++m1[c];
-    }
-
-    // 문자열 Y에 있는 각 문자의 개수를 m2에 저장한다.
-    for (char c : Y)
-    {
-        ++m2[c];
-    }
-
-    // m1의 문자를 순회하며 m2에 있는지 검사하고, 있을 경우에는 더 적은 개수만큼 answer에 이어 붙인다.
-    for (const auto& p : m1)
-    {
-        if (m2.find(p.first) != m2.end())
+        // 각 단어를 순회하며, 발음할 수 있다면 answer를 1 증가시킨다.
+        if (CanPronounce(word))
         {
-            answer += string(min(p.second, m2[p.first]), p.first);
+            ++answer;
         }
     }
 
-    // 하나라도 같은 문자가 없었다면, answer에 "-1"을 대입한다.
-    if (answer.empty())
+    return answer;
+}
+
+bool CanPronounce(const string& word)
+{
+    // 발음할 수 있는 단어
+    static const string words[] = { "aya", "ye", "woo", "ma" };
+    string prev;
+
+    // word의 문자를 순회하며, 발음할 수 있는 단어를 포함하고 있는지 검사한다.
+    for (int i = 0; i < word.size(); )
     {
-        answer = "-1";
-    }
-    // 두 문자가 0을 여러개 가지는 경우가 있으므로, answer에 "0"을 대입한다.
-    else if (answer.front() == '0')
-    {
-        answer = "0";
+        bool isPossible = false;
+
+        for (int j = 0; j < 4; ++j)
+        {
+            // 인덱스 i부터 words[i]의 길이만큼을 검사하여, 포함여부를 판단한다.
+            string part = word.substr(i, words[j].length());
+
+            // 연속해서 같은 발음을 하지 못하므로, part와 prev가 같지 않으면서 포함하는 경우에 isPossible을 true로 만들고 i를 part의 길이만큼 증가시킨다.
+            if ((part != prev) && (part == words[j]))
+            {
+                isPossible = true;
+                prev = part;
+                i += part.length();
+                break;
+            }
+        }
+
+        // 발음할 수 있는 단어를 포함하고 있지 않다면, false를 반환한다.
+        if (!isPossible)
+        {
+            return false;
+        }
     }
 
-    return answer;
+    return true;
 }
