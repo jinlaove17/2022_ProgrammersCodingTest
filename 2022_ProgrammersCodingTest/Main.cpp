@@ -1,58 +1,43 @@
-#include <string>
-#include <vector>
+#include <cmath>
 
 using namespace std;
 
-bool CanPronounce(const string& word);
-
-int solution(vector<string> babbling)
+long long solution(int r1, int r2)
 {
-    int answer = 0;
+    long long answer = 0;
 
-    for (const auto& word : babbling)
+    long long rr1 = static_cast<long long>(r1) * r1;
+    long long rr2 = static_cast<long long>(r2) * r2;
+
+    // 사분원 내에 있는 점의 개수를 구한 후에 4배 해줄 것이다.
+    for (int x = 0; x <= r2; ++x)
     {
-        // 각 단어를 순회하며, 발음할 수 있다면 answer를 1 증가시킨다.
-        if (CanPronounce(word))
+        long long xx = static_cast<long long>(x) * x;
+
+        // 원의 방정식을 이용하여, x일 때의 큰 원의 y값을 계산한다.
+        long long y2 = sqrt(rr2 - xx);
+        long long y = 0;
+
+        if (x < r1)
         {
-            ++answer;
-        }
-    }
+            // 원의 방정식을 이용하여, x일 때의 작은 원의 y값을 계산한다.
+            double y1 = sqrt(rr1 - xx);
 
-    return answer;
-}
+            // 만약 y1이 정수가 아니라면, 1을 더한 값부터 계산해야 한다.
+            y = y1;
 
-bool CanPronounce(const string& word)
-{
-    // 발음할 수 있는 단어
-    static const string words[] = { "aya", "ye", "woo", "ma" };
-    string prev;
-
-    // word의 문자를 순회하며, 발음할 수 있는 단어를 포함하고 있는지 검사한다.
-    for (int i = 0; i < word.size(); )
-    {
-        bool isPossible = false;
-
-        for (int j = 0; j < 4; ++j)
-        {
-            // 인덱스 i부터 words[i]의 길이만큼을 검사하여, 포함여부를 판단한다.
-            string part = word.substr(i, words[j].length());
-
-            // 연속해서 같은 발음을 하지 못하므로, part와 prev가 같지 않으면서 포함하는 경우에 isPossible을 true로 만들고 i를 part의 길이만큼 증가시킨다.
-            if ((part != prev) && (part == words[j]))
+            if (y1 > y)
             {
-                isPossible = true;
-                prev = part;
-                i += part.length();
-                break;
+                ++y;
             }
         }
 
-        // 발음할 수 있는 단어를 포함하고 있지 않다면, false를 반환한다.
-        if (!isPossible)
-        {
-            return false;
-        }
+        answer += (y2 - y + 1);
     }
 
-    return true;
+    // 중복된 부분이 생기지 않도록 사분원에 점의 개수에서 x = 0일 때의 점의 개수를 빼서 갈고리 모양의 점의 개수를 구한다.
+    answer -= (r2 - r1 + 1);
+
+    // 결과 값에 4배하여 원에 점의 개수를 구한다.
+    return 4 * answer;
 }
