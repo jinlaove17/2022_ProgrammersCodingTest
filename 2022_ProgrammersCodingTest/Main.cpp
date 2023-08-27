@@ -1,46 +1,65 @@
 #include <string>
 #include <vector>
-#include <unordered_map>
 
 using namespace std;
 
-string solution(vector<string> survey, vector<int> choices)
+int solution(vector<int> queue1, vector<int> queue2)
 {
-    string answer = "";
-    unordered_map<char, int> um;
-    int idx = 0;
+    int answer = 0;
+    int q1Size = queue1.size(), q2Size = queue2.size();
+    int totSize = q1Size + q2Size;
+    long long q1Tot = 0, q2Tot = 0;
+    vector<int> v;
 
-    for (const string& str : survey)
+    v.reserve(totSize);
+
+    for (int i = 0; i < queue1.size(); ++i)
     {
-        switch (choices[idx])
+        q1Tot += queue1[i];
+        q2Tot += queue2[i];
+        v.push_back(queue1[i]);
+        v.push_back(queue2[i]);
+    }
+
+    int p = 0, q = q1Size;
+
+    while (true)
+    {
+        if (q1Tot == q2Tot)
         {
-        case 1:
-            um[str[0]] += 3;
             break;
-        case 2:
-            um[str[0]] += 2;
-            break;
-        case 3:
-            um[str[0]] += 1;
-            break;
-        case 5:
-            um[str[1]] += 1;
-            break;
-        case 6:
-            um[str[1]] += 2;
-            break;
-        case 7:
-            um[str[1]] += 3;
+        }
+        else if ((q1Size == 0) || (q2Size == 0))
+        {
+            answer = -1;
             break;
         }
 
-        idx++;
-    }
+        if (q1Tot > q2Tot)
+        {
+            --q1Size;
+            ++q2Size;
+            q1Tot -= v[p];
+            q2Tot += v[p];
+            ++p; //p = (p + 1) % totSize;
 
-    answer.push_back((um['R'] >= um['T']) ? 'R' : 'T');
-    answer.push_back((um['C'] >= um['F']) ? 'C' : 'F');
-    answer.push_back((um['J'] >= um['M']) ? 'J' : 'M');
-    answer.push_back((um['A'] >= um['N']) ? 'A' : 'N');
+            if (p >= totSize)
+            {
+                answer = -1;
+                break;
+            }
+        }
+        else
+        {
+            --q2Size;
+            ++q1Size;
+            q2Tot -= v[q];
+            q1Tot += v[q];
+            q = (q + 1) % totSize;
+        }
+
+        ++answer;
+    }
 
     return answer;
 }
