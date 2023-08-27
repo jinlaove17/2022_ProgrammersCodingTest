@@ -1,64 +1,80 @@
+#include <iostream>
 #include <string>
 #include <vector>
+#include <stack>
+#include <queue>
+#include <tuple>
+#include <utility>
 
 using namespace std;
 
-int solution(vector<int> queue1, vector<int> queue2)
+vector<string> solution(vector<vector<string>> plans)
 {
-    int answer = 0;
-    int q1Size = queue1.size(), q2Size = queue2.size();
-    int totSize = q1Size + q2Size;
-    long long q1Tot = 0, q2Tot = 0;
-    vector<int> v;
+    vector<string> answer;
 
-    v.reserve(totSize);
+    // <시작 시간, 소요 시간, 과제명>
+    priority_queue<tuple<int, int, string>, vector<tuple<int, int, string>>, greater<tuple<int, int, string>>> minHeap;
 
-    for (int i = 0; i < queue1.size(); ++i)
+    for (const auto& plan : plans)
     {
-        q1Tot += queue1[i];
-        q2Tot += queue2[i];
-        v.push_back(queue1[i]);
-        v.push_back(queue2[i]);
+        int startMin = 60 * stoi(plan[1].substr(0, 2)) + stoi(plan[1].substr(3, 2));
+        int duration = stoi(plan[2]);
+
+        minHeap.emplace(startMin, duration, plan[0]);
     }
 
-    int p = 0, q = q1Size;
+    // <소요 시간, 과제명>
+    stack<pair<int, string>> stk;
+    tuple<int, int, string> cur = minHeap.top();
+    int curTime = get<0>(cur);
 
-    while (true)
+    minHeap.pop();
+
+    while (!minHeap.empty())
     {
-        if (q1Tot == q2Tot)
-        {
-            break;
-        }
-        else if ((q1Size == 0) || (q2Size == 0))
-        {
-            answer = -1;
-            break;
-        }
+        tuple<int, int, string> nxt = minHeap.top();
 
-        if (q1Tot > q2Tot)
+        if (get<0>(nxt) < curTime + get<1>(cur))
         {
-            --q1Size;
-            ++q2Size;
-            q1Tot -= v[p];
-            q2Tot += v[p];
-            ++p; //p = (p + 1) % totSize;
-
-            if (p >= totSize)
-            {
-                answer = -1;
-                break;
-            }
+            curTime = get<0>(nxt);
+            stk.emplace(get<1>(cur) - (get<0>(nxt) - get<0>(cur)), get<2>(cur));
+            minHeap.pop();
+            cur = nxt;
         }
         else
         {
-            --q2Size;
-            ++q1Size;
-            q2Tot -= v[q];
-            q1Tot += v[q];
-            q = (q + 1) % totSize;
-        }
+            answer.push_back(get<2>(cur));
+            curTime = get<0>(cur) + get<1>(cur);
 
-        ++answer;
+            if (stk.empty())
+            {
+                curTime = get<0>(nxt);
+                minHeap.pop();
+                cur = nxt;
+            }
+            else
+            {
+                if (get<0>(nxt) == curTime)
+                {
+                    curTime = get<0>(nxt);
+                    minHeap.pop();
+                    cur = nxt;
+                }
+                else
+                {
+                    cur = make_tuple(curTime, get<0>(stk.top()), get<1>(stk.top()));
+                    stk.pop();
+                }
+            }
+        }
+    }
+
+    answer.push_back(get<2>(cur));
+
+    while (!stk.empty())
+    {
+        answer.push_back(get<1>(stk.top()));
+        stk.pop();
     }
 
     return answer;
