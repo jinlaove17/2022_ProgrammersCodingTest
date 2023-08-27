@@ -1,43 +1,46 @@
-#include <cmath>
+#include <string>
+#include <vector>
+#include <unordered_map>
 
 using namespace std;
 
-long long solution(int r1, int r2)
+string solution(vector<string> survey, vector<int> choices)
 {
-    long long answer = 0;
+    string answer = "";
+    unordered_map<char, int> um;
+    int idx = 0;
 
-    long long rr1 = static_cast<long long>(r1) * r1;
-    long long rr2 = static_cast<long long>(r2) * r2;
-
-    // 사분원 내에 있는 점의 개수를 구한 후에 4배 해줄 것이다.
-    for (int x = 0; x <= r2; ++x)
+    for (const string& str : survey)
     {
-        long long xx = static_cast<long long>(x) * x;
-
-        // 원의 방정식을 이용하여, x일 때의 큰 원의 y값을 계산한다.
-        long long y2 = sqrt(rr2 - xx);
-        long long y = 0;
-
-        if (x < r1)
+        switch (choices[idx])
         {
-            // 원의 방정식을 이용하여, x일 때의 작은 원의 y값을 계산한다.
-            double y1 = sqrt(rr1 - xx);
-
-            // 만약 y1이 정수가 아니라면, 1을 더한 값부터 계산해야 한다.
-            y = y1;
-
-            if (y1 > y)
-            {
-                ++y;
-            }
+        case 1:
+            um[str[0]] += 3;
+            break;
+        case 2:
+            um[str[0]] += 2;
+            break;
+        case 3:
+            um[str[0]] += 1;
+            break;
+        case 5:
+            um[str[1]] += 1;
+            break;
+        case 6:
+            um[str[1]] += 2;
+            break;
+        case 7:
+            um[str[1]] += 3;
+            break;
         }
 
-        answer += (y2 - y + 1);
+        idx++;
     }
 
-    // 중복된 부분이 생기지 않도록 사분원에 점의 개수에서 x = 0일 때의 점의 개수를 빼서 갈고리 모양의 점의 개수를 구한다.
-    answer -= (r2 - r1 + 1);
+    answer.push_back((um['R'] >= um['T']) ? 'R' : 'T');
+    answer.push_back((um['C'] >= um['F']) ? 'C' : 'F');
+    answer.push_back((um['J'] >= um['M']) ? 'J' : 'M');
+    answer.push_back((um['A'] >= um['N']) ? 'A' : 'N');
 
-    // 결과 값에 4배하여 원에 점의 개수를 구한다.
-    return 4 * answer;
+    return answer;
 }
